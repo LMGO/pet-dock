@@ -1,6 +1,4 @@
 <template>
-  <div id="app">
-    <!-- 不是注册页时显示导航栏 -->
   <header class="AppHeader">
     <div class="AppHeader-inner ">
       <a href="/home" aria-label="宠坞" class="logo-link">
@@ -43,7 +41,6 @@
       </div>
     </div>
   </header>
-  </div>
 </template>
 <script>
 export default {
@@ -126,6 +123,7 @@ export default {
           .ActivePath{
             font-weight: 600;
             width: 100%;
+            padding-bottom: 3px;
           }
           .ActivePath::after {
               height: 4px;

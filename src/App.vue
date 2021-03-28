@@ -20,6 +20,7 @@ export default {
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 ul {
   padding: 0;
@@ -28,12 +29,12 @@ ul {
 }
 body {
   background: #f6f6f6;
+  font-size: 15px;
+  color: #121212;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
 }
 </style>
