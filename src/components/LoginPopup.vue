@@ -3,44 +3,41 @@
   <div class="background-Mask"></div>
   <div class="login-box">
     <div class="login-box">
-      <img class="esc-icon" src="../assets/icon/esc.png" alt="">
+      <img class="esc-icon" src="../assets/icon/esc.png" alt="" @click="closePopup">
       <ul class="login-nav">
         <li class="loginway" :class="{activeTab: isactibveTab == 1}" @click="isactibveTab = 1">账号登录</li>
         <li class="loginway" :class="{activeTab: isactibveTab == 2}"  @click="isactibveTab = 2">免密登录</li>
       </ul>
-      <div class="login-form" v-show="isactibveTab == 1">
-        <div class="info-list username">
-          <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-            <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" name="username" node-type="username" tabindex="1" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
+      <div class="login-form">
+        <div v-show="isactibveTab == 1">
+          <div class="info-list username">
+            <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
+              <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" name="username" node-type="username" tabindex="1" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
+            </div>
+          </div>
+          <div class="info-list password">
+            <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
+              <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" name="password" node-type="password" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+            </div>
           </div>
         </div>
-        <div class="info-list passward">
-          <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-            <input type="passward" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" name="passward" node-type="passward" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+        <div v-show="isactibveTab == 2">
+          <div class="info-list userphone">
+            <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
+              <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" name="userphone" node-type="userphone" tabindex="1" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
+            </div>
           </div>
-        </div>
-        <div class="info-list login-button">登录</div>
-        <div class="info-list login-help">
-          <span class="no-account">还没有账号？<router-link to="/register">立即注册</router-link></span>
-          <span class="forget-passward">忘记密码？</span>
-        </div>
-      </div>
-      <div class="login-form" v-show="isactibveTab == 2">
-        <div class="info-list userphone">
-          <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-            <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" name="userphone" node-type="userphone" tabindex="1" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
-          </div>
-        </div>
-        <div class="info-list Verification-Code">
-          <div class="get-code">获取短信验证码</div>
-          <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-            <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" name="passward" node-type="passward" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+          <div class="info-list Verification-Code">
+            <div class="get-code">获取短信验证码</div>
+            <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
+              <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" name="password" node-type="password" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+            </div>
           </div>
         </div>
         <div class="info-list login-button">登录</div>
         <div class="info-list login-help">
           <span class="no-account">还没有账号？<router-link to="/register">立即注册</router-link></span>
-          <span class="forget-passward">忘记密码？</span>
+          <span class="forget-password">忘记密码？</span>
         </div>
       </div>
     </div>
@@ -52,10 +49,13 @@ export default {
   data() {
     return {
       isactibveTab: 1, //控制登录方式Tab
-      input_wrap_focus: 0 //控制账号和密码聚焦样式
+      input_wrap_focus: 0, //控制账号和密码聚焦样式
     };
   },
   methods:{
+    closePopup() {
+      this.$store.commit('changestatus', true)
+    }
   }
   
 }
@@ -74,7 +74,7 @@ export default {
 .login-box {
   opacity: 1;
   position: fixed;
-  top: 50%;
+  top: 45%;
   left: 50%;
   width: 450px;
   padding: 50px;
@@ -115,7 +115,7 @@ export default {
       letter-spacing: normal;
     }
     .activeTab {
-      border-bottom: 3px solid #fa7d3c;
+      border-bottom: 3px solid rgb(253,218,90);
       color: #000;
       font-weight: 700;
     }
@@ -155,9 +155,9 @@ export default {
         background-image: url("../assets/icon/useraccount.png");
       }
     }
-    .passward{
+    .password{
       .input_wrap {
-        background-image: url("../assets/icon/userpassward.png");
+        background-image: url("../assets/icon/userpassword.png");
       }
     }
     .userphone {
@@ -193,13 +193,13 @@ export default {
       letter-spacing: 5px;
       color: #fff;
       text-align: center;
-      background: #ff8140;
-      border: 1px solid #f77c3d;
+      background: rgb(253,218,90);
+      border: 1px solid rgb(253,218,90);
       border-radius: 2px;
       cursor: default;
       &:hover {
-        background: #f7671d;
-        border-color:#f06923
+        background: rgb(250, 201, 26);
+        border-color:rgb(250, 201, 26);
       }
     }
     .login-help {
@@ -212,7 +212,7 @@ export default {
           text-decoration: none;
         }
       }
-      .forget-passward {
+      .forget-password {
         display: block;
         margin: 0 auto;
         &:hover {

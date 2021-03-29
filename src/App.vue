@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <!-- 不是注册页时显示导航栏 -->
-    <Header  v-show="$route.path !=='/register'" /> 
+    <Header v-show="$route.path !=='/reg'" /> 
     <router-view/>
   </div>
 </template>
@@ -29,6 +29,7 @@ ul {
 }
 body {
   background: #f6f6f6;
+  // background: rgb(253, 252, 234);
   font-size: 15px;
   color: #121212;
 }
