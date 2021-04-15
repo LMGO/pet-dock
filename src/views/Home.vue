@@ -1,7 +1,17 @@
 <template>
   <div class="home">
-    <nav class="Left-nav">左边导航栏</nav>
-    <section class="center-content">中部内容</section>
+    <!-- 遮挡滑动后的内容 -->
+    <div class="cover"></div>
+    <nav class="Left-nav">
+      <ul class="nav-list">
+        <router-link v-for="(item, index) in navlist" :key="index" :to="{ path: item.path }" class="BeforeActive"  active-class="ActivePath" replace tag="li">
+          {{item.navname}}
+        </router-link>
+      </ul>
+    </nav>
+    <section class="center-content">
+      <router-view></router-view>
+    </section>
     <div class="right-area">
       <div v-if="!islogin" class="login-box">
         <ul class="login-nav">
@@ -12,29 +22,29 @@
           <div v-show="isactibveTab == 1">
             <div class="info-list username">
               <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-                <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" name="username" node-type="username" tabindex="1" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
+                <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" v-model="loginform.user_name_phone" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
               </div>
             </div>
             <div class="info-list password">
               <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-                <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" name="password" node-type="password" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+                <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" v-model="loginform.user_password" @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
               </div>
             </div>
           </div>
           <div v-show="isactibveTab == 2">
             <div class="info-list userphone">
-              <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-                <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" name="userphone" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
+              <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 3}">
+                <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" v-model="loginform.user_phone" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0">
               </div>
             </div>
             <div class="info-list Verification-Code">
-              <div class="get-code">获取短信验证码</div>
-              <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-                <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" name="password" node-type="password" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+              <div class="get-code" @click="getCode">获取短信验证码<span class="time" v-if="showtime" @click.stop="">倒计时 {{restTime}} s</span></div>
+              <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 4}">
+                <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" v-model="loginform.user_code" @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
               </div>
             </div>
           </div>
-          <div class="info-list login-button">登录</div>
+          <div class="info-list login-button" @click="toSignin">登录</div>
           <div class="info-list login-help">
             <span class="no-account">还没有账号？<router-link to="/reg">立即注册</router-link></span>
             <span class="forget-password">忘记密码？</span>
@@ -62,12 +72,92 @@ export default {
   },
   data(){
     return {
-      islogin: false,
+      navlist:[
+        {
+          navname: '社区热门',
+          path: '/home/hot'
+        },
+        {
+          navname: '话题推荐',
+          path: '/home/hottopic'
+        },
+        {
+          navname: '最新发布',
+          path: '/home/newpost'
+        },
+        {
+          navname: '我关注的',
+          path: '/home/myfollow'
+        },
+        {
+          navname: '好物推荐',
+          path: '/home/tuijian'
+        }
+      ],
+      islogin: true,
       isactibveTab: 1, //控制登录方式Tab
       input_wrap_focus: 0, //控制账号和密码聚焦样式 
+      loginform: {
+        user_name_phone: '',//用户名或者手机号
+        user_password: '',
+        user_phone: '',
+        user_code: ''
+      },
+      showtime: false,//控制倒计时
+      restTime: '',
+      timer:null
     }
   },
   methods:{
+    getCode() {
+      let self = this;
+      if (!self.loginform.user_phone || !(/^1[34578]\d{9}$/.test(self.loginform.user_phone))){
+        self.input_wrap_focus = 3;
+        //提示 手机号格式错误或为空
+        console.log("手机号为空或格式错误");
+      } else {
+        self.input_wrap_focus = 0;
+        //获取验证码
+        const TIME_COUNT = 60;
+        if (!self.timer) {
+          self.restTime = TIME_COUNT;
+          self.showtime = true
+          self.timer = setInterval(() => {
+            if (self.restTime > 0 && self.restTime <= TIME_COUNT) {
+              self.restTime--;
+            } else {
+              self.showtime = false
+              clearInterval(self.timer);
+              self.timer = null;
+            }
+          }, 1000)
+        }
+      }
+    },
+    toSignin() {
+      let self = this;
+      //账号密码登录
+      if(self.isactibveTab == 1) {
+        if(!self.loginform.user_name_phone){
+          self.input_wrap_focus = 1;
+          console.log("请填写手机号或用户昵称");
+        } else if(!self.loginform.user_password){
+          self.input_wrap_focus = 2;
+          console.log("请输入密码");
+        }
+      } else {
+        if(!self.loginform.user_phone || !(/^1[34578]\d{9}$/.test(self.loginform.user_phone))){
+          self.input_wrap_focus = 3;
+          console.log("请正确填写手机号");
+        } else if(!self.loginform.user_code){
+          self.input_wrap_focus = 4;
+          console.log("请输入验证码");
+        } else if(self.loginform.user_code.length != 6){
+          self.input_wrap_focus = 4;
+          console.log("验证码错误");
+        }
+      }
+    }
   },
   computed: {
   },
@@ -77,23 +167,62 @@ export default {
 </script>
 <style lang="scss" scoped>
 .home {
-  margin: 15px auto;
+  margin: 65px auto;
   width: 1000px;
   display: flex;
+  position: relative;
+  overflow: hidden;
+  .cover {
+    background-color: #f6f6f6;
+    height: 15px;
+    position: fixed;
+    z-index: 1;
+    width: 1000px;
+    top: 50px;
+  }
   .Left-nav {
+    position: fixed;
     width: 135px;
     background-color: #fff;
     padding: 20px 10px;
-    box-sizing: border-box;
+    height: 200px;
+    border-radius: 2px;
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      height: 100%;
+      align-items: center;
+      list-style: none;
+      li {
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .BeforeActive {
+        color: #121212;
+        position: relative;
+        &:hover {
+          font-weight: 600;
+        }
+      }
+      .ActivePath{
+        font-weight: 600;
+        color: rgb(253,218,90);
+      }
+    }
+    // box-sizing: content-box;
   }
   .center-content {
     width: 595px;
-    margin-left: 15px;
-    background-color: #fff;
+    margin-left: 145px;
+    background-color:transparent;
+    height: 2000px;
+
   }
   .right-area {
+    position: fixed;
     width: 240px;
-    margin-left: 15px;
+    margin-left: 750px;
     background-color: #f6f6f6;
     .login-box {
       background-color: #fff;
@@ -181,8 +310,23 @@ export default {
             align-items: center;
             justify-content: center;
             background-color: #f2f2f5;
+            position: relative;
             &:hover {
               background-color: #cccccc;
+            }
+            .time {
+              position: absolute;
+              z-index: 1;
+              top: 0;
+              left: 0;
+              background: #FFF;
+              width: 100%;
+              height: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              background-color: #f2f2f5;
+              cursor: not-allowed;
             }
           }
           .input_wrap {

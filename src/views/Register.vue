@@ -25,7 +25,6 @@
         <div class="reg-box">
           <ul class="reg-nav">
             <li class="regway">个人用户注册</li>
-            <!-- <li class="regway" :class="{activeTab: isactibveTab == 2}"  @click="isactibveTab = 2">认证注册</li> -->
           </ul>
           <div class="reg-form">
             <div>
@@ -45,7 +44,7 @@
                 </div>
               </div>
               <div class="info-list Verification-Code">
-                <div class="get-code" @click="getCode()">获取短信验证码</div>
+                <div class="get-code" @click="getCode">获取短信验证码<span class="time" v-if="showtime" @click.stop="">倒计时 {{restTime}} s</span></div>
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 4}">
                   <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" name="code" v-model="regform.code" tabindex="4"  @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
                 </div>
@@ -81,7 +80,10 @@ export default {
         user_gender: '男',
         user_phone:'',
         code: ''
-      }
+      },
+      showtime: false,//控制倒计时
+      restTime: '',
+      timer:null
     };
   },
   methods:{
@@ -94,6 +96,20 @@ export default {
       } else {
         self.input_wrap_focus = 0
         //获取验证码
+        const TIME_COUNT = 60;
+        if (!self.timer) {
+          self.restTime = TIME_COUNT;
+          self.showtime = true
+          self.timer = setInterval(() => {
+            if (self.restTime > 0 && self.restTime <= TIME_COUNT) {
+              self.restTime--;
+            } else {
+              self.showtime = false
+              clearInterval(self.timer);
+              self.timer = null;
+            }
+          }, 1000)
+        }
       }
     },
     signUp() {
@@ -310,6 +326,20 @@ export default {
               background-color: #f2f2f5;
               &:hover {
                 background-color: #cccccc;
+              }
+              .time {
+                position: absolute;
+                z-index: 1;
+                top: 0;
+                left: 0;
+                background: #FFF;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #f2f2f5;
+                cursor: not-allowed;
               }
             }
             .gender-select {

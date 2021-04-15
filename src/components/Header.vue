@@ -88,7 +88,6 @@ export default {
 <style lang="scss" scoped>
 .AppHeader {
     position: relative;
-    z-index: 100;
     min-width: 1000px;
     overflow: hidden;
     background: #fff;
@@ -150,7 +149,8 @@ export default {
               right: 0;
               left: 0;
               bottom: -1px;
-              background: #06f;
+              // background: #06f;
+              background-color: rgb(253,218,90);
               content: "";
               width: 100%;
             }

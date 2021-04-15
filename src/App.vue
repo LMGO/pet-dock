@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <!-- 不是注册页时显示导航栏 -->
-    <Header v-show="$route.path !=='/reg'" /> 
+    <div class="header-nav">
+      <Header v-show="$route.path !=='/reg'" /> 
+    </div>
     <router-view/>
   </div>
 </template>
@@ -32,10 +34,21 @@ body {
   // background: rgb(253, 252, 234);
   font-size: 15px;
   color: #121212;
+    &::-webkit-scrollbar {
+      display: none;
+  }
 }
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.header-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
 }
 </style>
