@@ -30,7 +30,7 @@ ul {
   list-style-type: none;
 }
 body {
-  background: #f6f6f6;
+  background: #fcf7b5;
   // background: rgb(253, 252, 234);
   font-size: 15px;
   color: #121212;
@@ -50,5 +50,8 @@ body {
   left: 0;
   width: 100%;
   z-index: 999;
+}
+.el-image-viewer__img {
+  max-height: 550px !important;
 }
 </style>

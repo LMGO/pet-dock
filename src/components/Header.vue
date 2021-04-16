@@ -224,6 +224,9 @@ export default {
               margin: 0em;
               font: 400 13.3333px Arial;
               outline: none;
+              &:hover {
+                box-shadow: 2px 2px 3px rgb(214, 212, 212);
+              }
             }
             .issearching {
               background-color: rgb(253,218,90) !important;

@@ -172,8 +172,10 @@ export default {
   display: flex;
   position: relative;
   overflow: hidden;
+  font-size: 14px;
   .cover {
-    background-color: #f6f6f6;
+    // background-color: #f6f6f6;
+    background-color: #fcf7b5;
     height: 15px;
     position: fixed;
     z-index: 1;
@@ -197,6 +199,7 @@ export default {
       li {
         text-decoration: none;
         cursor: pointer;
+        letter-spacing: 1px;
       }
       .BeforeActive {
         color: #121212;
@@ -207,6 +210,7 @@ export default {
       }
       .ActivePath{
         font-weight: 600;
+        font-size: 15px;
         color: rgb(253,218,90);
       }
     }
@@ -216,7 +220,7 @@ export default {
     width: 595px;
     margin-left: 145px;
     background-color:transparent;
-    height: 2000px;
+    // height: 2000px;
 
   }
   .right-area {
