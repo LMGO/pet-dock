@@ -1,5 +1,5 @@
 <template>
-  <div class="newpost">
+  <div class="hotpost">
     <CommunityContent content-type="hot"/>
   </div>
 </template>
@@ -16,6 +16,9 @@ export default {
     }
   },
   methods:{
+  },
+  mounted() {
+    this.$route.params.type = 'post'
   }
 }
 </script>

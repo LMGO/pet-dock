@@ -30,7 +30,7 @@ ul {
   list-style-type: none;
 }
 body {
-  background: #fcf7b5;
+  background: #fcf8c6;
   // background: rgb(253, 252, 234);
   font-size: 15px;
   color: #121212;
@@ -54,4 +54,7 @@ body {
 .el-image-viewer__img {
   max-height: 550px !important;
 }
+// .el-collapse-item__content {
+//   padding-bottom: 34px !important;
+// }
 </style>

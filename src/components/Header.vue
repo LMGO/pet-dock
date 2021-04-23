@@ -7,8 +7,8 @@
       </a>
       <span class="chongwu" aria-label="宠坞">宠坞</span>
       <ul role="navigation" class="AppHeader-Tabs">
-        <li class="AppHeader-Tab" v-for="(item, index) in navlist" :key="index">
-          <router-link :to="{ path: item.path }" class="BeforeActive"  active-class="ActivePath">
+        <li class="AppHeader-Tab" v-for="(item, index) in navlist" :key="index"> 
+          <router-link :to="{ path: item.path}" class="BeforeActive"  active-class="ActivePath">
             {{item.navname}}
           </router-link>
         </li>
@@ -35,7 +35,7 @@
       <div class="AppHeader-userInfo">
         <div v-show="!showavatar" class="sign">
           <span @click="$store.commit('changestatus', false)">登录</span> /
-          <span><router-link to="/reg">注册</router-link></span>
+          <span><router-link class="reg" to="/reg">注册</router-link></span>
         </div>
         <img v-show="showavatar" class="User-avatar" src="../assets/logo.png" alt="">
       </div>
@@ -60,7 +60,8 @@ export default {
       navlist: [
         {
           navname: '首页',
-          path: '/home'
+          path: '/home',
+          // query: 'post'//默认展示所有post
         },{
           navname: '你问我答',
           path: '/askanwser'
@@ -278,8 +279,9 @@ export default {
             &:hover {
               color: #f7671d;
             }
-            a {
+            .reg {
               text-decoration: none;
+              color: #121212;
               &:hover {
                 color: #f7671d;
               }

@@ -3,11 +3,9 @@
     <!-- 遮挡滑动后的内容 -->
     <div class="cover"></div>
     <nav class="Left-nav">
-      <ul class="nav-list">
-        <router-link v-for="(item, index) in navlist" :key="index" :to="{ path: item.path }" class="BeforeActive"  active-class="ActivePath" replace tag="li">
-          {{item.navname}}
-        </router-link>
-      </ul>
+      <div class="nav-list">
+        <div class="BeforeActive" v-for="(item,index) in navlist" :key="index"  :class="{ActivePath: ActivePath == item.name}" @click="goto(item)">{{item.navname}}</div>
+      </div>
     </nav>
     <section class="center-content">
       <router-view></router-view>
@@ -72,26 +70,37 @@ export default {
   },
   data(){
     return {
+      ActivePath:'Hot',
       navlist:[
         {
           navname: '社区热门',
-          path: '/home/hot'
+          name: 'Hot',
+          path:'/home/hot',
+          params: 'post'//默认展示所有post
         },
         {
           navname: '话题推荐',
-          path: '/home/hottopic'
+          name: 'Hottopic',
+          path:'/home/hottopic',
+          params: 'hot'//默认展示热门话题
         },
         {
           navname: '最新发布',
-          path: '/home/newpost'
+          name: 'Newpost',
+          path:'/home/newpost',
+          params: 'post'//默认展示所有post
         },
         {
           navname: '我关注的',
-          path: '/home/myfollow'
+          name: 'Myfollow',
+          path:'/home/myfollow',
+          params: 'post'//默认先展示所有post
         },
         {
           navname: '好物推荐',
-          path: '/home/tuijian'
+          name: 'Tuijian',
+          path:'/home/tuijian',
+          params: 'hot'//默认先展示热销商品
         }
       ],
       islogin: true,
@@ -157,6 +166,12 @@ export default {
           console.log("验证码错误");
         }
       }
+    },
+    goto(i) {
+      if(this.ActivePath != i.name) {
+        this.ActivePath = i.name
+        this.$router.push({name:i.name,params:{type:i.params,}})
+      }
     }
   },
   computed: {
@@ -173,6 +188,7 @@ export default {
   position: relative;
   overflow: hidden;
   font-size: 14px;
+  min-height: 1000px;
   .cover {
     // background-color: #f6f6f6;
     background-color: #fcf7b5;
@@ -196,14 +212,11 @@ export default {
       height: 100%;
       align-items: center;
       list-style: none;
-      li {
-        text-decoration: none;
-        cursor: pointer;
-        letter-spacing: 1px;
-      }
       .BeforeActive {
         color: #121212;
         position: relative;
+        cursor: pointer;
+        letter-spacing: 2px;
         &:hover {
           font-weight: 600;
         }
@@ -214,14 +227,11 @@ export default {
         color: rgb(253,218,90);
       }
     }
-    // box-sizing: content-box;
   }
   .center-content {
     width: 595px;
-    margin-left: 145px;
-    background-color:transparent;
-    // height: 2000px;
-
+    margin:0 250px 0 145px;
+    min-height: 1000px;
   }
   .right-area {
     position: fixed;
