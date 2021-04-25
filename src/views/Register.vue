@@ -30,23 +30,23 @@
             <div>
               <div class="info-list password">
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-                  <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请设置密码 5-15 位" name="password" v-model="regform.password"  @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
+                  <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请设置密码 5-15 位" name="password" v-model="regform.password"  @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0" @keyup="regform.password = regform.password.replace(/\s+/g,'')">
                 </div>
               </div>
               <div class="info-list password">
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-                  <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="再次确认密码" name="password" v-model="regform.passwordagain" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+                  <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="再次确认密码" name="password" v-model="regform.passwordagain" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0"  @keyup="regform.passwordagain = regform.passwordagain.replace(/\s+/g,'')">
                 </div>
               </div>
               <div class="info-list userphone">
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 3}">
-                  <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" name="user_phone" v-model="regform.user_phone" tabindex="3" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0">
+                  <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" name="user_phone" v-model="regform.user_phone" tabindex="3" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0"  @keyup="regform.user_phone = regform.user_phone.replace(/\s+/g,'')">
                 </div>
               </div>
               <div class="info-list Verification-Code">
                 <div class="get-code" @click="getCode">获取短信验证码<span class="time" v-if="showtime" @click.stop="">倒计时 {{restTime}} s</span></div>
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 4}">
-                  <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" name="code" v-model="regform.code" tabindex="4"  @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
+                  <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" name="code" v-model="regform.code" tabindex="4"  @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0"  @keyup="regform.code = regform.code.replace(/\s+/g,'')">
                 </div>
               </div>
               <div class="info-list Verification-Code">

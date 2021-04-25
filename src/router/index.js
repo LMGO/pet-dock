@@ -19,19 +19,19 @@ const routes = [
     path: '/home',
     component: Home,
     children: [
-      { 
-        path: '', 
+      {
+        path: '',
         redirect: 'hot/post',
       },
       {
         path: 'hot/:type',
         name: 'Hot',
         component: Hot
-      },{
+      }, {
         path: 'hottopic',
         name: 'Hottopic',
         component: HotTopic
-      },{
+      }, {
         path: 'newpost/:type',
         name: 'Newpost',
         component: NewPost
@@ -47,29 +47,34 @@ const routes = [
         component: HotTopic
       }
     ]
-  },{
-    path: '/askAnswer/:type',
+  }, {
+    path: '/askanswer/:type',
     name: 'AskAnswer',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import('../views/AskAnswer.vue')
-  },{
+  },
+  {
     path: '/service',
     name: 'Service',
     component: () => import('../views/Service.vue')
-  },{
+  }, {
     path: '/know',
     name: 'Know',
     component: () => import('../views/Know.vue')
-  },{
+  }, {
     path: '/reg',
     name: 'Register',
     component: () => import(/* webpackChunkName: "Register" */ '../views/Register.vue')
-  },{
+  }, {
     path: '/search',
     name: 'Search',
     component: () => import('../views/Search.vue')
+  },{
+    path: '/question',
+    name: 'Question',
+    component: () => import('../views/Question.vue')
   },{
     path: '*',
     redirect: '/home'

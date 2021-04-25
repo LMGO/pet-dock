@@ -93,6 +93,7 @@
   position: relative;
   overflow: hidden;
   font-size: 14px;
+  min-height: 600px;
   // min-height: 1000px;
   .cover {
     background-color: #f6f6f6;

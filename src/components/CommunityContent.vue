@@ -104,7 +104,7 @@
                         <img class="like" v-if="comment.isagreeed" src="../assets/icon/like.png" alt="">
                         <img class="like" v-else src="../assets/icon/like-active.png" alt="">
                         <!-- 为0不显示 -->
-                        <span class="agree-count" v-if="comment.replay_agree_count">{{comment.replay_agree_count}}</span>
+                        <span class="agree-count" v-if="comment.reply_agree_count">{{comment.reply_agree_count}}</span>
                       </div>
                       <p>{{comment.comment_content}}</p>
                       <div class="comment-time">
@@ -119,7 +119,7 @@
                               <span class="user-nickname">{{rcomment.author.user_nickname}}：</span>
                               <img class="like" v-if="rcomment.isagreeed" src="../assets/icon/like.png" alt="">
                               <img class="like" v-else src="../assets/icon/like-active.png" alt="">
-                              <span  class="agree-count" v-if="rcomment.replay_agree_count">{{rcomment.replay_agree_count}}</span>
+                              <span  class="agree-count" v-if="rcomment.reply_agree_count">{{rcomment.reply_agree_count}}</span>
                             </div>
                             <p>{{rcomment.comment_content}}</p>
                             <div class="comment-time">
@@ -227,7 +227,7 @@
                         <img class="like" v-if="comment.isagreeed" src="../assets/icon/like.png" alt="">
                         <img class="like" v-else src="../assets/icon/like-active.png" alt="">
                         <!-- 为0不显示 -->
-                        <span class="agree-count" v-if="comment.replay_agree_count">{{comment.replay_agree_count}}</span>
+                        <span class="agree-count" v-if="comment.reply_agree_count">{{comment.reply_agree_count}}</span>
                       </div>
                       <p>{{comment.comment_content}}</p>
                       <div class="comment-time">
@@ -242,7 +242,7 @@
                               <span class="user-nickname">{{rcomment.author.user_nickname}}：</span>
                               <img class="like" v-if="rcomment.isagreeed" src="../assets/icon/like.png" alt="">
                               <img class="like" v-else src="../assets/icon/like-active.png" alt="">
-                              <span  class="agree-count" v-if="rcomment.replay_agree_count">{{rcomment.replay_agree_count}}</span>
+                              <span  class="agree-count" v-if="rcomment.reply_agree_count">{{rcomment.reply_agree_count}}</span>
                             </div>
                             <p>{{rcomment.comment_content}}</p>
                             <div class="comment-time">
@@ -281,229 +281,7 @@ export default {
   props: ['contentType'],
   data(){
     return {
-      // issearchingItem: '',
       commenttextarea:'',//评论内容
-      // postlist: [
-      //   {
-      //     post_id: 'tiezi123456', //（文章id）
-      //     //多个话题标签
-      //     topic_list:[
-      //       {
-      //         topic_id: 'topic123456',//（话题ID）
-      //         topic_name: '宠物猫' //（话题名称）
-      //       },{
-      //         topic_id: 'topic123456',//（话题ID）
-      //         topic_name: '宠物猫真可爱' //（话题名称）
-      //       },
-      //     ],
-      //     userinfo: {
-      //       user_id: 'user18487315405' ,
-      //       user_nickname: '半途',
-      //       user_avatar: require('../assets/img/reg3.jpg')
-      //     },
-      //     post_style: 'image',//（动态分类text/image/video）
-      //     user_grade: 100, //(用户等级0-1000)
-      //     isfollow: false ,//(是否关注)
-      //     post_conent: '猫仔陪伴的一天，开心',//（帖子内容）
-      //     postimg:[
-      //       'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-      //       'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg',
-      //       require('../assets/img/reg3.jpg'),
-      //       require('../assets/img/reg3.jpg'),
-      //       require('../assets/img/reg3.jpg'),
-      //       require('../assets/img/reg3.jpg'),
-      //       require('../assets/img/reg3.jpg'),
-      //     ], //按顺序
-      //     post_video: [videotest],//（视频地址）
-      //     post_time:'1618654274090',
-      //     likes_count: 111, //（点赞数）
-      //     collection_count: 20, //（收藏数）
-      //     reply_count: 100, //（评论数）
-      //     isliked: false,
-      //     isfollowed: true,// （是否收藏了）
-      //     comments_sort_by:'hot',
-      //     comments: [//评论数组
-      //       {
-      //       //一级评论
-      //       post_reply_id: 'comments111',
-      //       comment_content:'真可爱',
-      //       user_id:'',
-      //       user_nickname:'半途',
-      //       user_avatar: require("../assets/img/reg3.jpg"),
-      //       post_reply_time: '1618654274090',
-      //       replay_agree_count:0,
-      //       isagreeed: Boolean ,
-      //       //二级评论
-      //       related_reply:[{
-      //         post_reply_id: '111',
-      //         author: {
-      //           user_id:'',
-      //           user_nickname:'乖乖李',
-      //           user_avatar:require("../assets/img/reg3.jpg"),
-      //         },
-      //         reply_to_author:{
-      //           user_id:"",
-      //           user_nickname:"半途",
-      //           user_avatar:require("../assets/img/reg3.jpg"),
-      //         },
-      //         comment_content: '真可爱',
-      //         post_reply_time:'',
-      //         replay_agree_count:111,
-      //         isagreeed: Boolean 
-      //         }]
-      //       },{
-      //       //一级评论
-      //       post_reply_id: 'comments111',
-      //       comment_content:'真可爱',
-      //       user_id:'',
-      //       user_nickname:'半途',
-      //       user_avatar: require("../assets/img/reg3.jpg"),
-      //       post_reply_time: '1618654274090',
-      //       replay_agree_count:0,
-      //       isagreeed: Boolean ,
-      //       //二级评论
-      //       related_reply:[{
-      //         post_reply_id: '111',
-      //         author: {
-      //           user_id:'',
-      //           user_nickname:'乖乖李',
-      //           user_avatar:require("../assets/img/reg3.jpg"),
-      //         },
-      //         reply_to_author:{
-      //           user_id:"",
-      //           user_nickname:"半途",
-      //           user_avatar:require("../assets/img/reg3.jpg"),
-      //         },
-      //         comment_content: '真可爱',
-      //         post_reply_time:'',
-      //         replay_agree_count:111,
-      //         isagreeed: Boolean 
-      //         }]
-      //       }
-      //     ]
-      //   },
-      //   {
-      //     post_id: 'tiezi123456', //（文章id）
-      //     //多个话题标签
-      //     topic_list:[
-      //       {
-      //         topic_id: 'topic123456',//（话题ID）
-      //         topic_name: '宠物猫' //（话题名称）
-      //       },{
-      //         topic_id: 'topic123456',//（话题ID）
-      //         topic_name: '宠物猫真可爱' //（话题名称）
-      //       },
-      //     ],
-      //     userinfo: {
-      //       user_id: 'user18487315405' ,
-      //       user_nickname: '半途',
-      //       user_avatar: require('../assets/img/reg3.jpg')
-      //     },
-      //     post_style: 'text',//（动态分类text/image/video）
-      //     user_grade: 100, //(用户等级0-1000)
-      //     isfollow: false ,//(是否关注)
-      //     post_conent: '猫仔陪伴的一天，开心',//（帖子内容）
-      //     postimg:[], //按顺序
-      //     post_video: [],//（视频地址）
-      //     post_time:'1618654274090',
-      //     likes_count: 111, //（点赞数）
-      //     collection_count: 20, //（收藏数）
-      //     reply_count: 100, //（评论数）
-      //     isliked: false,
-      //     isfollowed: true,// （是否收藏了）
-      //     comments_sort_by:'hot',
-      //     comments: [//评论数组
-      //       {
-      //       //一级评论
-      //       post_reply_id: 'comments111',
-      //       comment_content:'真可爱',
-      //       user_id:'',
-      //       user_nickname:'半途',
-      //       user_avatar: require("../assets/img/reg3.jpg"),
-      //       post_reply_time: '1618654274090',
-      //       replay_agree_count:0,
-      //       isagreeed: Boolean ,
-      //       //二级评论
-      //       related_reply:[{
-      //         post_reply_id: '111',
-      //         author: {
-      //           user_id:'',
-      //           user_nickname:'乖乖李',
-      //           user_avatar:require("../assets/img/reg3.jpg"),
-      //         },
-      //         reply_to_author:{
-      //           user_id:"",
-      //           user_nickname:"半途",
-      //           user_avatar:require("../assets/img/reg3.jpg"),
-      //         },
-      //         comment_content: '真可爱',
-      //         post_reply_time:'',
-      //         replay_agree_count:111,
-      //         isagreeed: Boolean 
-      //         }]
-      //       },{
-      //       //一级评论
-      //       post_reply_id: 'comments111',
-      //       comment_content:'真可爱',
-      //       user_id:'',
-      //       user_nickname:'半途',
-      //       user_avatar: require("../assets/img/reg3.jpg"),
-      //       post_reply_time: '1618654274090',
-      //       replay_agree_count:0,
-      //       isagreeed: Boolean ,
-      //       //二级评论
-      //       related_reply:[{
-      //         post_reply_id: '111',
-      //         author: {
-      //           user_id:'',
-      //           user_nickname:'乖乖李',
-      //           user_avatar:require("../assets/img/reg3.jpg"),
-      //         },
-      //         reply_to_author:{
-      //           user_id:"",
-      //           user_nickname:"半途",
-      //           user_avatar:require("../assets/img/reg3.jpg"),
-      //         },
-      //         comment_content: '真可爱',
-      //         post_reply_time:'',
-      //         replay_agree_count:111,
-      //         isagreeed: Boolean 
-      //         }]
-      //       }
-      //     ]
-      //   },
-      //   {
-      //     post_id: 'tiezi123456', //（文章id）
-      //     //多个话题标签
-      //     topic_list:[
-      //       {
-      //         topic_id: 'topic123456',//（话题ID）
-      //         topic_name: '宠物猫' //（话题名称）
-      //       },{
-      //         topic_id: 'topic123456',//（话题ID）
-      //         topic_name: '宠物猫真可爱' //（话题名称）
-      //       },
-      //     ],
-      //     userinfo: {
-      //       user_id: 'user18487315405' ,
-      //       user_nickname: '半途',
-      //       user_avatar: require('../assets/img/reg3.jpg')
-      //     },
-      //     post_style: 'video',//（动态分类text/image/video）
-      //     user_grade: 100, //(用户等级0-1000)
-      //     isfollow: false ,//(是否关注)
-      //     post_conent: '猫仔陪伴的一天，开心',//（帖子内容）
-      //     postimg:[], //按顺序
-      //     post_video: [videotest],//（视频地址）
-      //     post_time:'1618654274090',
-      //     likes_count: 111, //（点赞数）
-      //     collection_count: 20, //（收藏数）
-      //     reply_count: 100, //（评论数）
-      //     isliked: false,
-      //     isfollowed: true,// （是否收藏了）
-      //     comments:[] //评论数组
-      //   }
-      // ],
       postlist: [
         {
           post_id: 'tiezi123456', //（文章id）
@@ -544,7 +322,7 @@ export default {
             user_nickname:'半途',
             user_avatar: require("../assets/img/reg3.jpg"),
             post_reply_time: '1618654274090',
-            replay_agree_count:0,
+            reply_agree_count:0,
             isagreeed: Boolean ,
             //二级评论
             related_reply:[{
@@ -561,7 +339,7 @@ export default {
               },
               comment_content: '真可爱',
               post_reply_time:'',
-              replay_agree_count:111,
+              reply_agree_count:111,
               isagreeed: Boolean 
               }]
             },{
@@ -572,7 +350,7 @@ export default {
             user_nickname:'半途',
             user_avatar: require("../assets/img/reg3.jpg"),
             post_reply_time: '1618654274090',
-            replay_agree_count:0,
+            reply_agree_count:0,
             isagreeed: Boolean ,
             //二级评论
             related_reply:[{
@@ -589,7 +367,7 @@ export default {
               },
               comment_content: '真可爱',
               post_reply_time:'',
-              replay_agree_count:111,
+              reply_agree_count:111,
               isagreeed: Boolean 
               }]
             }
@@ -633,8 +411,11 @@ export default {
     //导航栏切换
     getcontent(i) {
       let self = this;
+      if(self.issearchingItem == i) {
+        return
+      }
       self.$router.replace({
-        name: 'Hot',
+        name: self.$route.name,
         params: {
           type: i
         }
@@ -860,6 +641,7 @@ export default {
       }
       .comment-area {
         padding: 0 30px;
+        box-shadow: 1px 1px 3px rgb(207, 206, 206);
         .post-comment {
           display: flex;
           align-items: center;
@@ -880,30 +662,35 @@ export default {
           list-style-type: none;
           display: flex;
           margin-top: 6px;
+          border-bottom: 1px solid #f0f2f7;
+          padding: 7px 0px;
+          &:nth-last-child(1) {
+            border-bottom: none;
+          }
         }
         .reply-user{
           list-style-type: none;
           display: flex;
           margin-top: 6px;
         }
-      }
-      .sort-order {
-        width: 100%;
-        margin-left: auto;
-        margin: 5px 0;
-        border-bottom: 1px solid #EBEEF5;
-        .sort {
-          display: flex;
-          justify-content: flex-end;
-          .sort-icon {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-          }
-          .sort-text {
-            margin-left: 10px;
-            font-size: 12px;
-            color: #9F9FA0;
+        .sort-order {
+          width: 100%;
+          margin-left: auto;
+          margin: 8px 0;
+          border-bottom: 1px solid #EBEEF5;
+          .sort {
+            display: flex;
+            justify-content: flex-end;
+            .sort-icon {
+              width: 20px;
+              height: 20px;
+              cursor: pointer;
+            }
+            .sort-text {
+              margin-left: 10px;
+              font-size: 12px;
+              color: #9F9FA0;
+            }
           }
         }
       }

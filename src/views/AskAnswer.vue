@@ -16,63 +16,383 @@
       <div class="cover cover-two"></div>
       <div class="content-list">
         <div class="hotlist" v-if="$route.params.type == 'hot'">
-          <li class="list-item" v-for="(hotitem,hotindex) in hotlist" :key="hotindex">
+          <li class="list-item" v-for="(hotitem,hotindex) in qalist" :key="hotindex" v-show="qalist.length">
             <div class="question-title">
-              <span class="title">{{hotitem.question_title}}</span>
+              <span class="title" @click="todetail(hotitem.question_id)">{{hotitem.question_title}}</span>
               <span class="follow-question" v-if="!hotitem.isfollowed">关注问题</span>
-              <span class="follow-question" v-else>已关注</span>
+              <span class="follow-question" v-else>您已关注</span>
             </div>
-            <div class="answer-area">
-              <img
-                class="user-avatar"
-                :src="hotitem.answser_author.user_avatar"
-                alt="用户头像"
-                v-if="hotitem.isanonymous"
-              />
-              <img class="user-avatar" src="../assets/icon/anonymous.png" alt="匿名" v-else />
-              <div class="content">
-                <div class="time-info">
-                  <div class="user-name">{{hotitem.answser_author.user_nickname}}</div>
-                  <div class="post-time" v-html="gettime(hotitem.post_time)"></div>
-                </div>
-                <div class="rich-content" :class="{iscollapsed:hotitem.iscollapsed}" @click="readall(hotitem)" >
-                  <div class="RichContent-inner">
-                    <span
-                      class="RichText ztext CopyrightRichText-richText"
-                      itemprop="articleBody"
-                    >{{hotitem.answer_content}}</span>
-                    <button type="button" class="Button ContentItem-more Button--plain" v-if="hotitem.iscollapsed">
-                      ...阅读全文
-                      <span>
-                        <i class="el-icon-arrow-down"></i>
-                      </span>
-                    </button>
+            <!--有回答时才显示 -->
+            <div v-if="hotitem.answer.answer_id">
+              <div class="answer-area">
+                <img
+                  class="user-avatar"
+                  :src="hotitem.answer.answser_author.user_avatar"
+                  alt="用户头像"
+                  v-if="hotitem.answer.isanonymous"
+                />
+                <img class="user-avatar" src="../assets/icon/anonymous.png" alt="匿名" v-else />
+                <div class="content">
+                  <div class="time-info">
+                    <div class="user-name">{{hotitem.answer.answser_author.user_nickname}}</div>
+                    <div class="post-time" v-html="gettime(hotitem.answer.post_time)"></div>
                   </div>
-                </div>
-                <div class="operate">
-                  <div class="agree">
-                    <el-button class="el-b" type="primary" icon="el-icon-caret-top" v-if="hotitem.isagree">赞同 {{calculate(hotitem.agreecount)}}</el-button>
-                    <el-button class="el-b" type="primary" icon="el-icon-caret-top" v-else plain>赞同 {{calculate(hotitem.agreecount)}}</el-button>
-                  </div>
-                  <div class="answer">
-                    <i class="el-icon-chat-line-round" style="font-size:15px"></i>
-                    <span>{{calculate(hotitem.commentcount)}}条评论</span>
-                  </div>
-                  <div class="uncollapsed" v-if="!hotitem.iscollapsed" @click="shouqi(hotitem)">
-                    收起<i class="el-icon-arrow-up"></i>
+                  <div
+                    class="rich-content"
+                    :class="{iscollapsed:hotitem.answer.iscollapsed}"
+                    @click="readall(hotitem)"
+                  >
+                    <div class="RichContent-inner">
+                      <span
+                        class="RichText ztext CopyrightRichText-richText"
+                        itemprop="articleBody"
+                      >{{hotitem.answer.answer_content}}</span>
+                      <button
+                        type="button"
+                        class="Button ContentItem-more Button--plain"
+                        v-if="hotitem.answer.iscollapsed"
+                      >
+                        ...阅读全文
+                        <span>
+                          <i class="el-icon-arrow-down"></i>
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+              <el-collapse accordion>
+                <el-collapse-item>
+                  <template slot="title">
+                    <div class="operate">
+                      <div class="agree">
+                        <el-button
+                          class="el-agree"
+                          icon="el-icon-caret-top"
+                          v-if="hotitem.answer.isagree"
+                          @click.stop="disagree(hotitem)"
+                        >赞同 {{calculate(hotitem.answer.agreecount)}}</el-button>
+                        <el-button
+                          class="el-disagree"
+                          icon="el-icon-caret-top"
+                          v-else
+                          @click.stop="agree(hotitem)"
+                          plain
+                        >赞同 {{calculate(hotitem.answer.agreecount)}}</el-button>
+                      </div>
+                      <div class="answer">
+                        <i class="el-icon-chat-line-round" style="font-size:15px"></i>
+                        <span>{{calculate(hotitem.answer.commentcount)}}条评论</span>
+                      </div>
+                      <div
+                        class="uncollapsed"
+                        v-if="!hotitem.answer.iscollapsed"
+                        @click.stop="shouqi(hotitem)"
+                      >
+                        收起
+                        <i class="el-icon-arrow-up"></i>
+                      </div>
+                    </div>
+                  </template>
+                  <div class="comments">
+                    <div class="post-comment">
+                      <el-input
+                        class="comment-input"
+                        type="textarea"
+                        :rows="1"
+                        placeholder="和大家分享你的看法吧！"
+                        v-model="commenttextarea"
+                      ></el-input>
+                      <el-button class="post-comment-button">发表</el-button>
+                    </div>
+                    <div class="sort-order">
+                      <div class="sort">
+                        <img class="sort-icon" src="../assets/icon/sort.png" alt="排序" />
+                        <span
+                          class="sort-text"
+                        >切换为{{hotitem.answer.comments_sort_by == 'hot'? '时间':'热度'}}排序</span>
+                      </div>
+                    </div>
+                    <li
+                      class="comment-list"
+                      v-for="(comment,cindex) in hotitem.answer.comments"
+                      :key="cindex"
+                    >
+                      <!-- 一级评论 -->
+                      <!-- <div class="user"> -->
+                      <img class="user-avatar" :src="comment.user_avatar" alt="用户头像" />
+                      <div class="userinfo-comment">
+                        <div class="user-nickname-like">
+                          <span class="user-nickname">{{comment.user_nickname}}：</span>
+                          <img
+                            class="like"
+                            v-if="comment.isagreeed"
+                            src="../assets/icon/like.png"
+                            alt
+                          />
+                          <img class="like" v-else src="../assets/icon/like-active.png" alt />
+                          <!-- 为0不显示 -->
+                          <span
+                            class="agree-count"
+                            v-if="comment.reply_agree_count"
+                          >{{comment.reply_agree_count}}</span>
+                        </div>
+                        <p>{{comment.comment_content}}</p>
+                        <div class="comment-time">
+                          <span v-html="gettime(comment.reply_time)"></span>
+                          <span class="reply">回复</span>
+                        </div>
+                        <!-- 二级评论 -->
+                        <li
+                          class="reply-user"
+                          v-for="(rcomment,rindex) in comment.related_reply"
+                          :key="rindex"
+                        >
+                          <img
+                            class="user-avatar second-avatar"
+                            :src="rcomment.author.user_avatar"
+                            alt="用户头像"
+                          />
+                          <div class="userinfo-comment">
+                            <div class="user-nickname-like">
+                              <span class="user-nickname">
+                                {{rcomment.author.user_nickname}}
+                                <span
+                                  v-if="rcomment.reply_to_author.user_id"
+                                >回复{{rcomment.reply_to_author.user_nickname}}</span>
+                                :
+                              </span>
+                              <img
+                                class="like"
+                                v-if="rcomment.isagreeed"
+                                src="../assets/icon/like.png"
+                                alt
+                              />
+                              <img class="like" v-else src="../assets/icon/like-active.png" alt />
+                              <span
+                                class="agree-count"
+                                v-if="rcomment.reply_agree_count"
+                              >{{rcomment.reply_agree_count}}</span>
+                            </div>
+                            <p>{{rcomment.comment_content}}</p>
+                            <div class="comment-time">
+                              <span>{{gettime(comment.reply_time)}}</span>
+                              <span class="reply">回复</span>
+                            </div>
+                          </div>
+                        </li>
+                        <!-- </div> -->
+                      </div>
+                    </li>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
             </div>
           </li>
+          <NoData v-show="!qalist.length" text='暂无热门问答或获取失败'/>
         </div>
-        <div class="newlist" v-if="$route.params.type == 'new'">fff</div>
-        <div class="follows" v-if="$route.params.type == 'follows'">ddd</div>
+        <div class="follows" v-if="$route.params.type == 'follows'">
+          <li class="list-item" v-for="(hotitem,hotindex) in qalist" :key="hotindex" v-show="qalist.length || hotitem.isfollowed">
+            <div class="question-title">
+              <span class="title" @click="todetail(hotitem.question_id)">{{hotitem.question_title}}</span>
+              <span class="follow-question" v-if="!hotitem.isfollowed">关注问题</span>
+              <span class="follow-question" v-else>您已关注</span>
+            </div>
+            <!--有回答时才显示 -->
+            <div v-if="hotitem.answer.answer_id">
+              <div class="answer-area">
+                <img
+                  class="user-avatar"
+                  :src="hotitem.answer.answser_author.user_avatar"
+                  alt="用户头像"
+                  v-if="hotitem.answer.isanonymous"
+                />
+                <img class="user-avatar" src="../assets/icon/anonymous.png" alt="匿名" v-else />
+                <div class="content">
+                  <div class="time-info">
+                    <div class="user-name">{{hotitem.answer.answser_author.user_nickname}}</div>
+                    <div class="post-time" v-html="gettime(hotitem.answer.post_time)"></div>
+                  </div>
+                  <div
+                    class="rich-content"
+                    :class="{iscollapsed:hotitem.answer.iscollapsed}"
+                    @click="readall(hotitem)"
+                  >
+                    <div class="RichContent-inner">
+                      <span
+                        class="RichText ztext CopyrightRichText-richText"
+                        itemprop="articleBody"
+                      >{{hotitem.answer.answer_content}}</span>
+                      <button
+                        type="button"
+                        class="Button ContentItem-more Button--plain"
+                        v-if="hotitem.answer.iscollapsed"
+                      >
+                        ...阅读全文
+                        <span>
+                          <i class="el-icon-arrow-down"></i>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <el-collapse accordion>
+                <el-collapse-item>
+                  <template slot="title">
+                    <div class="operate">
+                      <div class="agree">
+                        <el-button
+                          class="el-agree"
+                          icon="el-icon-caret-top"
+                          v-if="hotitem.answer.isagree"
+                          @click.stop="disagree(hotitem)"
+                        >赞同 {{calculate(hotitem.answer.agreecount)}}</el-button>
+                        <el-button
+                          class="el-disagree"
+                          icon="el-icon-caret-top"
+                          v-else
+                          @click.stop="agree(hotitem)"
+                          plain
+                        >赞同 {{calculate(hotitem.answer.agreecount)}}</el-button>
+                      </div>
+                      <div class="answer">
+                        <i class="el-icon-chat-line-round" style="font-size:15px"></i>
+                        <span>{{calculate(hotitem.answer.commentcount)}}条评论</span>
+                      </div>
+                      <div
+                        class="uncollapsed"
+                        v-if="!hotitem.answer.iscollapsed"
+                        @click.stop="shouqi(hotitem)"
+                      >
+                        收起
+                        <i class="el-icon-arrow-up"></i>
+                      </div>
+                    </div>
+                  </template>
+                  <div class="comments">
+                    <div class="post-comment">
+                      <el-input
+                        class="comment-input"
+                        type="textarea"
+                        :rows="1"
+                        placeholder="和大家分享你的看法吧！"
+                        v-model="commenttextarea"
+                      ></el-input>
+                      <el-button class="post-comment-button">发表</el-button>
+                    </div>
+                    <div class="sort-order">
+                      <div class="sort">
+                        <img class="sort-icon" src="../assets/icon/sort.png" alt="排序" />
+                        <span
+                          class="sort-text"
+                        >切换为{{hotitem.answer.comments_sort_by == 'hot'? '时间':'热度'}}排序</span>
+                      </div>
+                    </div>
+                    <li
+                      class="comment-list"
+                      v-for="(comment,cindex) in hotitem.answer.comments"
+                      :key="cindex"
+                    >
+                      <!-- 一级评论 -->
+                      <!-- <div class="user"> -->
+                      <img class="user-avatar" :src="comment.user_avatar" alt="用户头像" />
+                      <div class="userinfo-comment">
+                        <div class="user-nickname-like">
+                          <span class="user-nickname">{{comment.user_nickname}}：</span>
+                          <img
+                            class="like"
+                            v-if="comment.isagreeed"
+                            src="../assets/icon/like.png"
+                            alt
+                          />
+                          <img class="like" v-else src="../assets/icon/like-active.png" alt />
+                          <!-- 为0不显示 -->
+                          <span
+                            class="agree-count"
+                            v-if="comment.reply_agree_count"
+                          >{{comment.reply_agree_count}}</span>
+                        </div>
+                        <p>{{comment.comment_content}}</p>
+                        <div class="comment-time">
+                          <span v-html="gettime(comment.reply_time)"></span>
+                          <span class="reply">回复</span>
+                        </div>
+                        <!-- 二级评论 -->
+                        <li
+                          class="reply-user"
+                          v-for="(rcomment,rindex) in comment.related_reply"
+                          :key="rindex"
+                        >
+                          <img
+                            class="user-avatar second-avatar"
+                            :src="rcomment.author.user_avatar"
+                            alt="用户头像"
+                          />
+                          <div class="userinfo-comment">
+                            <div class="user-nickname-like">
+                              <span class="user-nickname">
+                                {{rcomment.author.user_nickname}}
+                                <span
+                                  v-if="rcomment.reply_to_author.user_id"
+                                >回复{{rcomment.reply_to_author.user_nickname}}</span>
+                                :
+                              </span>
+                              <img
+                                class="like"
+                                v-if="rcomment.isagreeed"
+                                src="../assets/icon/like.png"
+                                alt
+                              />
+                              <img class="like" v-else src="../assets/icon/like-active.png" alt />
+                              <span
+                                class="agree-count"
+                                v-if="rcomment.reply_agree_count"
+                              >{{rcomment.reply_agree_count}}</span>
+                            </div>
+                            <p>{{rcomment.comment_content}}</p>
+                            <div class="comment-time">
+                              <span>{{gettime(comment.reply_time)}}</span>
+                              <span class="reply">回复</span>
+                            </div>
+                          </div>
+                        </li>
+                        <!-- </div> -->
+                      </div>
+                    </li>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
+            </div>
+            <div class="noanswer" v-else>
+              <el-button class="Button-answer" icon="el-icon-edit">去回答</el-button>
+              暂无回答，快来发表你的回答吧！
+            </div>
+          </li>
+          <NoData v-show="!qalist.length" text='还没有您关注的问题'/>
+        </div>
+        <div class="newlist" v-if="$route.params.type == 'new'">
+          <li class="list-item" v-for="(newitem,hotindex) in newquestion" :key="hotindex" v-show="newquestion.length">
+            <div class="question-title">
+              <span class="title" @click="todetail(newitem.question_id)">{{newitem.question_title}}</span>
+              <span class="follow-question" v-if="!newitem.isfollowed">关注问题</span>
+              <span class="follow-question" v-else>您已关注</span>
+            </div>
+            <div class="noanswer">
+              <div>暂无回答，快来发表你的回答吧！</div>
+              <el-button class="Button-answer" icon="el-icon-edit">我来回答</el-button>
+              <span>{{newitem.answer_count}}回答·</span>
+              <span>{{newitem.follow_count}}关注·</span>
+              <span>{{gettime(newitem.post_time)}}</span>
+            </div>
+          </li>
+          <NoData v-show="!newquestion.length==0" text='暂无新发布的问题'/>
+        </div>
       </div>
     </div>
     <!-- 用户卡片和登录 -->
     <div class="right-area">
-      <LoginUserinfo />
+      <LoginUserinfo text='暂无更多新问题'/>
     </div>
   </div>
 </template>
@@ -80,65 +400,153 @@
 // @ is an alias to /src
 import { showformattime } from "../utils/index.js";
 import LoginUserinfo from "@/components/LoginUserinfo.vue";
+import NoData from "../components/NoData"
 
 export default {
   name: "AskAnswer",
   components: {
-    LoginUserinfo
+    LoginUserinfo,
+    NoData
   },
   data() {
     return {
+      commenttextarea: "", //评论内容
       navlist: [
         {
           name: "热门问答",
           params: "hot"
         },
         {
-          name: "等你来答",
-          params: "new"
-        },
-        {
           name: "我关注的",
           params: "follows"
+        },
+        {
+          name: "等你来答",
+          params: "new"
         }
       ],
-      hotlist: [
+      //问答和我关注的列表，热门问答必须有回答，根据浏览次数热度排序，我关注的回答为空时返回空对象
+      qalist: [
         {
           question_id: "1111",
           question_title: "如何给猫洗澡?",
           isfollowed: true,
-          answer_id: "",
-          answser_author: {
-            user_nickname: "匿名用户",
-            user_avatar: require("../assets/img/reg6.jpg")
-          },
-          isanonymous: false,
-          post_time: "1618654274090",
-          answer_content: "我不知道",
-          agreecount: 111,
-          isagree:false,
-          commentcount: 22,
-          comments: [],
-          iscollapsed: true //获取数据后手动添加默认折叠
+          answer: {
+            answer_id: "0",
+            answser_author: {
+              user_nickname: "匿名用户",
+              user_avatar: require("../assets/img/reg6.jpg")
+            },
+            isanonymous: false, //是否匿名
+            post_time: "1618654274090",
+            answer_content: "我不知道",
+            agreecount: 111,
+            isagree: false,
+            commentcount: 22,
+            iscollapsed: true, //获取数据后手动添加默认折叠
+            comments: [
+              //评论数组
+              {
+                //一级评论
+                answer_reply_id: "comments111",
+                comment_content: "真可爱",
+                user_id: "", //评论者
+                user_nickname: "半途",
+                user_avatar: require("../assets/img/reg3.jpg"),
+                reply_time: "1618654274090",
+                reply_agree_count: 0,
+                isagreeed: Boolean,
+                //二级评论
+                related_reply: [
+                  {
+                    answer_reply_id: "111",
+                    author: {
+                      user_id: "",
+                      user_nickname: "乖乖李",
+                      user_avatar: require("../assets/img/reg3.jpg")
+                    },
+                    reply_to_author: {
+                      user_id: "111",
+                      user_nickname: "半途",
+                      user_avatar: require("../assets/img/reg3.jpg")
+                    },
+                    comment_content: "真可爱",
+                    reply_time: "",
+                    reply_agree_count: 111,
+                    isagreeed: Boolean
+                  }
+                ]
+              },
+              {
+                //一级评论
+                answer_reply_id: "comments111",
+                comment_content: "真可爱",
+                user_id: "",
+                user_nickname: "半途",
+                user_avatar: require("../assets/img/reg3.jpg"),
+                reply_time: "1618654274090",
+                reply_agree_count: 0,
+                isagreeed: Boolean,
+                //二级评论
+                related_reply: [
+                  {
+                    answer_reply_id: "111",
+                    author: {
+                      user_id: "",
+                      user_nickname: "乖乖李",
+                      user_avatar: require("../assets/img/reg3.jpg")
+                    },
+                    reply_to_author: {
+                      user_id: "",
+                      user_nickname: "半途",
+                      user_avatar: require("../assets/img/reg3.jpg")
+                    },
+                    comment_content: "真可爱",
+                    reply_time: "",
+                    reply_agree_count: 111,
+                    isagreeed: Boolean
+                  }
+                ]
+              }
+            ]
+          }
         },
         {
           question_id: "1111",
           question_title: "如何给猫洗澡?",
           isfollowed: false,
-          answer_id: "",
-          answser_author: {
-            user_nickname: "半途",
-            user_avatar: require("../assets/img/reg6.jpg")
-          },
-          isanonymous: true,
-          post_time: "1618654274090",
-          answer_content:
-            "哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或发发发发发发发发发发发付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付",
-          agreecount: 1111111,
-          isagree: true,
-          commentcount: 22234,
-          comments: [],
-          iscollapsed: false //获取数据后手动添加默认折叠
+          answer: {
+            answer_id: "1",
+            answser_author: {
+              user_nickname: "半途",
+              user_avatar: require("../assets/img/reg6.jpg")
+            },
+            isanonymous: true,
+            post_time: "1618654274090",
+            answer_content:
+              "哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或发发发发发发发发发发发付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付付",
+            agreecount: 1111111,
+            isagree: true,
+            commentcount: 22234,
+            comments: [],
+            iscollapsed: false //获取数据后手动添加默认折叠
+          }
+        }
+      ],
+      newquestion: [
+        {
+          question_id: "1111",
+          question_title: "如何给猫洗澡?",
+          answer_count:2,
+          follow_count:0,
+          post_time:'1619346234369'
+        },
+        {
+          question_id: "1111",
+          question_title: "如何给猫洗澡?",
+          answer_count:2,
+          follow_count:0,
+          post_time:'1619346234369'
         }
       ]
     };
@@ -147,6 +555,10 @@ export default {
     //导航栏切换
     getcontent(i) {
       let self = this;
+      console.log(self.ActiveNav)
+      if(self.ActiveNav == i) {
+        return
+      }
       self.$router.replace({
         name: "AskAnswer",
         params: {
@@ -168,22 +580,47 @@ export default {
     },
     //数据格式化
     calculate(i) {
-      if(parseInt(i)>=10000){
-        i = (parseInt(i)/10000).toFixed(1)
+      if (parseInt(i) >= 10000) {
+        i = (parseInt(i) / 10000).toFixed(1);
         return `${i}万`;
       } else {
         return i;
       }
     },
-    readall(hotitem){
-      if(hotitem.iscollapsed){
-        this.$set(hotitem, 'iscollapsed', false)
+    readall(hotitem) {
+      if (hotitem.answer.iscollapsed) {
+        this.$set(hotitem.answer, "iscollapsed", false);
       }
     },
-    shouqi(hotitem){
-      if(!hotitem.iscollapsed){
-        this.$set(hotitem, 'iscollapsed', true)
+    //收起全文
+    shouqi(hotitem) {
+      if (!hotitem.answer.iscollapsed) {
+        this.$set(hotitem.answer, "iscollapsed", true);
       }
+    },
+    //赞同
+    agree(hotitem) {
+      console.log(hotitem.answer.isagree);
+      if (!hotitem.answer.isagree) {
+        this.$set(hotitem.answer, "isagree", true);
+      }
+      console.log(hotitem.answer.isagree);
+    },
+    //取消赞同
+    disagree(hotitem) {
+      console.log(hotitem.answer.isagree);
+      if (hotitem.answer.isagree) {
+        this.$set(hotitem.answer, "isagree", false);
+      }
+      console.log(hotitem.answer.isagree);
+    },
+    todetail(id) {
+      this.$router.push({
+        name: 'Question',
+        query: {
+          question_id: id
+        }
+      })
     }
   },
   computed: {
@@ -257,16 +694,19 @@ export default {
     }
     .content-list {
       margin-top: 45px;
-      min-height: 500px;
       background: #fff;
       box-shadow: 1px 1px 3px rgb(207, 206, 206);
       padding: 10px 20px;
       .hotlist,
-      .newlist {
+      .newlist,
+      .follows {
         .list-item {
           list-style-type: none;
           border-bottom: 1px solid #f0f2f7;
-          padding: 10px 0px;
+          padding: 8px 0px;
+          &:nth-last-child(1) {
+            border-bottom: none;
+          }
           &:first-child {
             padding-top: 0;
           }
@@ -279,6 +719,10 @@ export default {
               font-size: 16px;
               align-self: center;
               font-weight: 600;
+              cursor: pointer;
+              &:hover {
+                color: #409eff;
+              }
             }
             .follow-question {
               margin-left: auto;
@@ -292,7 +736,8 @@ export default {
               background-color: #fdda5a;
               border-radius: 2px;
               &:hover {
-                color: rgb(255, 200, 0);
+                background-color: #f8c405;
+                // color: rgb(255, 200, 0);
               }
             }
           }
@@ -332,7 +777,7 @@ export default {
                   text-overflow: ellipsis;
                   display: -webkit-Box;
                   -webkit-line-clamp: 3;
-                  -webkit-Box-orient: vertical;
+                  -webkit-box-orient: vertical;
                   overflow: hidden;
                   .ztext {
                     word-break: break-word;
@@ -367,35 +812,113 @@ export default {
                 padding-bottom: 3px;
                 cursor: pointer;
                 transition: color 0.14s ease-out;
-                border-bottom: 1px solid rgb(240, 238, 238);
                 &:hover {
                   color: #646464;
                 }
               }
-              .operate {
+            }
+          }
+          .operate {
+            display: flex;
+            width: 100%;
+            .agree {
+              .el-agree {
+                // padding: 7px 8px !important;
+                color: #fff;
+                background-color: #ffda5a !important;
+              }
+              .el-disagree {
+                // padding: 7px 8px !important;
+                // color: #409eff;
+                // background-color: #ecf5ff !important;
+                color: #a5a5a5;
+                background-color: #fff6d4 !important;
+              }
+            }
+            .answer {
+              margin-left: 20px;
+              align-self: center;
+              color: #8590a6;
+              span {
+                margin-left: 5px;
+                font-size: 12px;
+              }
+            }
+            .uncollapsed {
+              color: #8590a6;
+              margin-left: auto;
+              cursor: pointer;
+              margin-right: 50px;
+              &:hover {
+                color: #76839b;
+              }
+            }
+          }
+          .comments {
+            padding: 10px 25px;
+            border: 1px solid #ebebeb;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px #1212121a;
+            .post-comment {
+              display: flex;
+              align-items: center;
+              .comment-input {
+                flex: 1;
+              }
+              .post-comment-button {
+                width: 56px;
+                background-color: #fdda5a;
+                color: #fff;
+                margin-left: 20px;
+                padding: 5px 8px;
+                text-align: center;
+              }
+            }
+            .comment-list {
+              clear: both;
+              list-style-type: none;
+              display: flex;
+              margin-top: 6px;
+              padding: 5px 0px;
+              border-bottom: 1px solid #ebebeb;
+            }
+            .reply-user {
+              list-style-type: none;
+              display: flex;
+              margin-top: 6px;
+            }
+            .sort-order {
+              width: 100%;
+              margin-left: auto;
+              margin: 8px 0;
+              border-bottom: 1px solid #ebeef5;
+              .sort {
                 display: flex;
-                margin-top: 8px;
-                .agree {
-                  background-color: #0066ff1a;
-                  color: #0066FF;
-                  .el-b {
-                    padding: 7px 8px;
-                  }
+                justify-content: flex-end;
+                .sort-icon {
+                  width: 20px;
+                  height: 20px;
+                  cursor: pointer;
                 }
-                .answer {
-                  margin-left: 20px;
-                  align-self: center;
-                  color: #8590a6;
-                  span {
-                    margin-left: 5px;
-                    font-size: 12px;
-                  }
-                }
-                .uncollapsed {
-                  color: #8590a6;
-                  margin-left: auto;
+                .sort-text {
+                  margin-left: 10px;
+                  font-size: 12px;
+                  color: #9f9fa0;
                 }
               }
+            }
+          }
+          .noanswer {
+            color: #8590a6;
+            font-size: 14px;
+            .Button-answer {
+              color: #fff;
+              background-color: #fce07b !important;
+              margin: 10px 0;
+            }
+            span {
+              display: inline-block;
+              margin-left: 20px;
             }
           }
         }
@@ -424,5 +947,53 @@ export default {
   top: 100px;
   height: 10px;
   transform: translateX(-5px);
+}
+// 评论公共样式
+.user-avatar {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.second-avatar {
+  height: 22px;
+  width: 22px;
+}
+.userinfo-comment {
+  font-size: 12px;
+  width: 100%;
+  margin-left: 5px;
+  .user-nickname-like {
+    // height: 20px;
+    line-height: 20px;
+    display: flex;
+    .user-nickname {
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .like {
+      cursor: pointer;
+      height: 15px;
+      margin-left: auto;
+    }
+    .agree-count {
+      margin-left: 8px;
+      color: #9f9fa0;
+    }
+  }
+  p {
+    word-break: break-all;
+    line-height: 12px;
+  }
+  .comment-time {
+    height: 10px;
+    line-height: 10px;
+    margin-top: 5px;
+    color: rgb(159, 159, 160);
+    .reply {
+      margin-left: 15px;
+      cursor: pointer;
+    }
+  }
 }
 </style>

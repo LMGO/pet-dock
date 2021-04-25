@@ -8,7 +8,9 @@
       <span class="chongwu" aria-label="宠坞">宠坞</span>
       <ul role="navigation" class="AppHeader-Tabs">
         <li class="AppHeader-Tab" v-for="(item, index) in navlist" :key="index"> 
-          <div class="BeforeActive" :class="{ActivePath: item.path == ($route.matched[0]||{}).path}" @click="gotoNav(item)">{{item.navname}}</div>
+          <div class="BeforeActive" :class="{ActivePath: item.path == ($route.matched[0]||{}).path}" @click="gotoNav(item)">{{item.navname}}
+            
+          </div>
           <!-- <router-link :to="{ path: item.path}" class="BeforeActive"  active-class="ActivePath">
             {{item.navname}}
           </router-link> -->
