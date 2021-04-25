@@ -1,5 +1,5 @@
 <template>
-  <div class="askanwser">
-    <h1>askanwser</h1>
+  <div class="askanswer">
+    <h1>askanswer</h1>
   </div>
 </template>

@@ -8,21 +8,22 @@
       <span class="chongwu" aria-label="宠坞">宠坞</span>
       <ul role="navigation" class="AppHeader-Tabs">
         <li class="AppHeader-Tab" v-for="(item, index) in navlist" :key="index"> 
-          <router-link :to="{ path: item.path}" class="BeforeActive"  active-class="ActivePath">
+          <div class="BeforeActive" :class="{ActivePath: item.path == ($route.matched[0]||{}).path}" @click="gotoNav(item)">{{item.navname}}</div>
+          <!-- <router-link :to="{ path: item.path}" class="BeforeActive"  active-class="ActivePath">
             {{item.navname}}
-          </router-link>
+          </router-link> -->
         </li>
       </ul>
       <div class="SearchArea">
         <div class="SearchBar">
-          <form action="" class="SearchBar-tool">
+          <form class="SearchBar-tool" @submit.prevent="">
             <div>
               <div class="Popover">
-                <label for="" class="SearchBar-input">
-                  <input type="text" placeholder="大家都在搜" class="Input">
+                <label for="" class="SearchBar-input" :class="{inputfocus:inputfocus}">
+                  <input type="text" placeholder="大家都在搜" class="Input" v-model="searchtext" @focus="inputfocus = true;issearching = true" @blur="search" @keyup.enter="search" @keyup="searchtext = searchtext.replace(/\s+/g,'')">
                   <button class="SearchBar-searchButton" :class="{issearching:issearching}">
                     <span>
-                      <img src="../assets/icon/sousuo.png" alt="">
+                      <img src="../assets/icon/sousuo.png" alt="" @click="search">
                     </span>
                   </button>
                 </label>
@@ -49,28 +50,33 @@
 // @ is an alias to /src
 import LoginPopup from '@/components/LoginPopup.vue'
 export default {
-  name: 'Header',
+  name: 'p-header',
   components: {
     LoginPopup
   },
   data() {
     return {
+      inputfocus: false,//输入框聚焦时样式
       showavatar: false,
-      issearching: true,//控制搜索样式
+      issearching: false,//控制搜索时搜索icon样式
+      searchtext:'',
       navlist: [
         {
           navname: '首页',
           path: '/home',
-          // query: 'post'//默认展示所有post
+          name: 'Home'
         },{
           navname: '你问我答',
-          path: '/askanwser'
+          path: '/askanswer/:type',
+          name:'AskAnswer'
         },{
           navname: '周边服务',
-          path: '/service'
+          path: '/service',
+          name:'Service'
         },{
           navname: '宠坞百科',
-          path: '/know'
+          path: '/know',
+          name: 'Know'
         }
       ]
     };
@@ -82,7 +88,47 @@ export default {
     }
   },
   methods:{
-  }
+    // 搜索
+    search() {
+      let self = this
+      self.inputfocus = false
+      self.issearching = false
+      console.log(self.$route.query.topicid)
+      //不为空才搜索
+      if(self.searchtext) {
+        //其它页面进入搜索页（非话题跳转）
+        if(self.$route.name != 'Search') {
+        self.$router.push({
+          path: '/search', 
+          query: {searchtext:self.searchtext}
+        });
+        //搜索页查看话题后继续搜索
+        } else if('topicid'in self.$route.query) {
+          self.$router.replace({
+            path: '/search', 
+            query: {searchtext:self.searchtext}
+          });
+        //搜索页普通搜索后继续搜索
+        } else if('searchtext' in self.$route.query) {
+          self.$router.replace({
+            path: '/search', 
+            query: {searchtext:self.searchtext}
+          });
+        }
+      }
+      self.searchtext = ''//清空搜索文字
+    },
+    // 导航栏切换
+    gotoNav(i) {
+      //问答页带参数
+      if (i.name == 'AskAnswer'){
+        this.$router.replace({name:i.name,params:{type: 'hot',}})
+      } else {
+        this.$router.replace(i.path)
+      }
+    }
+  },
+  mounted() {}
   
 }
 </script>
@@ -93,7 +139,7 @@ export default {
     overflow: hidden;
     background: #fff;
     background-clip: content-box;
-    box-shadow: 0 1px 3px rgba(184, 180, 180, 0.267);
+    box-shadow: 0 2px 5px rgba(184, 180, 180, 0.267);
     .AppHeader-inner {
       position: relative;
       display: flex;
@@ -138,6 +184,7 @@ export default {
             &:hover {
               font-weight: 600;
               width: 100%;
+              cursor: pointer;
             }
           }
           .ActivePath{
@@ -186,6 +233,9 @@ export default {
               height: 100%;
               width: 100%;
           }
+          .inputfocus {
+            border: 1px solid #FDDA5A;
+          }
           .SearchBar-input {
             display: flex;
             align-items: center;
@@ -197,7 +247,6 @@ export default {
             border-radius: 999px;
             background: #f6f6f6;
             box-sizing: border-box;
-            transition: width .2s ease,background .3s ease;
             width: 100%;
             .Input {
               flex: 1 1;
@@ -225,9 +274,9 @@ export default {
               margin: 0em;
               font: 400 13.3333px Arial;
               outline: none;
-              &:hover {
-                box-shadow: 2px 2px 3px rgb(214, 212, 212);
-              }
+              // &:hover {
+              //   box-shadow: 2px 2px 3px rgb(214, 212, 212);
+              // }
             }
             .issearching {
               background-color: rgb(253,218,90) !important;
@@ -246,6 +295,7 @@ export default {
               text-align: center;
               display: flex;
               align-items: center;
+              outline: none;
               cursor: pointer;
               span {
                 display: inline-flex;

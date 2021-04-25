@@ -42,18 +42,18 @@ const routes = [
         component: Follow
       },
       {
-        path: 'tuijian',
-        name: 'Tuijian',
+        path: 'product',
+        name: 'ProductRecommendation',
         component: HotTopic
       }
     ]
   },{
-    path: '/askanwser',
-    name: 'Askanwser',
+    path: '/askAnswer/:type',
+    name: 'AskAnswer',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import('../views/Askanwser.vue')
+    component: () => import('../views/AskAnswer.vue')
   },{
     path: '/service',
     name: 'Service',
@@ -66,6 +66,10 @@ const routes = [
     path: '/reg',
     name: 'Register',
     component: () => import(/* webpackChunkName: "Register" */ '../views/Register.vue')
+  },{
+    path: '/search',
+    name: 'Search',
+    component: () => import('../views/Search.vue')
   },{
     path: '*',
     redirect: '/home'

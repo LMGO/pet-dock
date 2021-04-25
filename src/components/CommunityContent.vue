@@ -6,12 +6,11 @@
       <div class="nav-item" :class="{issearching:issearchingItem == 'video'}" @click="getcontent('video')">视频</div>
       <div class="nav-item" :class="{issearching:issearchingItem == 'art'}" @click="getcontent('art')">文章</div>
       <div class="sousuo">
-        <input type="text"/>
+        <input type="text" placeholder="搜搜你感兴趣的内容"/>
         <img src="../assets/icon/sousuo.png" alt="">
       </div>
     </header>
     <!-- 遮挡滑动后的内容 -->
-    <div class="cover"></div>
     <div class="content">
       <!-- 全部 -->
       <!-- <div class="all">全部</div> -->
@@ -56,7 +55,7 @@
             <div class="item">
               <img v-if="true" src="../assets/icon/collection.png" alt="">
               <img v-else src="../assets/icon/collection-active.png" alt="">
-              <span>{{item.collection_count}}</span>
+              <span>{{calculatedata(item.collection_count)}}</span>
             </div>
             <div class="item line">
               <!-- <img src="../assets/icon/comment.png" alt="">
@@ -65,13 +64,13 @@
             <div class="item">
               <img v-if="true" src="../assets/icon/like.png" alt="">
               <img v-else src="../assets/icon/like-active.png" alt="">
-              <span>{{item.likes_count}}</span>
+              <span>{{calculatedata(item.likes_count)}}</span>
             </div>
           </div>
           <el-collapse accordion>
             <el-collapse-item class="comment-area">
               <template slot="title">
-                展开评论({{item.reply_count}})
+                展开评论({{calculatedata(item.reply_count)}})
               </template>
               <div class="post-comment">
                 <el-input
@@ -179,7 +178,7 @@
             <div class="item">
               <img v-if="true" src="../assets/icon/collection.png" alt="">
               <img v-else src="../assets/icon/collection-active.png" alt="">
-              <span>{{item.collection_count}}</span>
+              <span>{{calculatedata(item.collection_count)}}</span>
             </div>
             <div class="item line">
               <!-- <img src="../assets/icon/comment.png" alt="">
@@ -188,13 +187,13 @@
             <div class="item">
               <img v-if="true" src="../assets/icon/like.png" alt="">
               <img v-else src="../assets/icon/like-active.png" alt="">
-              <span>{{item.likes_count}}</span>
+              <span>{{calculatedata(item.likes_count)}}</span>
             </div>
           </div>
           <el-collapse accordion>
             <el-collapse-item class="comment-area">
               <template slot="title">
-                展开评论({{item.reply_count}})
+                展开评论({{calculatedata(item.reply_count)}})
               </template>
               <div class="post-comment">
                 <el-input
@@ -530,9 +529,9 @@ export default {
           postimg:[], //按顺序
           post_video: [videotest],//（视频地址）
           post_time:'1618654274090',
-          likes_count: 111, //（点赞数）
-          collection_count: 20, //（收藏数）
-          reply_count: 100, //（评论数）
+          likes_count: 111532, //（点赞数）
+          collection_count: 200, //（收藏数）
+          reply_count: 21550, //（评论数）
           isliked: false,
           isfollowed: true,// （是否收藏了）
           comments_sort_by:'hot',
@@ -620,7 +619,7 @@ export default {
           postimg:[], //按顺序
           post_video: [videotest],//（视频地址）
           post_time:'1618654274090',
-          likes_count: 111, //（点赞数）
+          likes_count: 11111, //（点赞数）
           collection_count: 20, //（收藏数）
           reply_count: 100, //（评论数）
           isliked: false,
@@ -631,19 +630,16 @@ export default {
     }
   },
   methods:{
+    //导航栏切换
     getcontent(i) {
       let self = this;
-      // self.issearchingItem = i;
-      // this.$route.params = {
-      //     type: i
-      // }
       self.$router.replace({
         name: 'Hot',
         params: {
           type: i
         }
-    })
-    console.log(self.$route.name)
+      })
+      console.log(self.$route.name)
       if(i == 'all') {
         //获取全部
       } else if( i == 'post') {
@@ -655,8 +651,18 @@ export default {
         //获取文章
       }
     },
+    //格式化时间
     gettime(i){
       return showformattime(i)
+    },
+    //格式化点赞收藏数据
+    calculatedata(i) {
+      if(parseInt(i)>=10000){
+        i = (parseInt(i)/10000).toFixed(1)
+        return `${i}万`;
+      } else {
+        return i;
+      }
     }
   },
   computed:{
@@ -693,6 +699,7 @@ export default {
     background-color: #fff;
     padding: 0 30px 0 60px;
     border-radius: 2px;
+    box-shadow: 1px 1px 3px rgb(207, 206, 206);
     .nav-item {
       letter-spacing: 2px;
       line-height: 35px;
@@ -711,15 +718,17 @@ export default {
       max-width: 200px;
       margin-left: auto;
       position: relative;
+      font-size: 12px;
       input {
         padding: 0 20px 0 10px;
         width: 100%;
         height: 25px;
         outline: none;
-        border-radius: 8px;
+        border-radius: 15px;
+        background-color: #fafafa;
         border: 1px solid rgb(192, 190, 190);
         &:hover{
-          box-shadow: 2px 2px 3px rgb(214, 212, 212);
+          box-shadow: 1px 1px 3px rgb(214, 212, 212);
         }
       }
       img {
@@ -732,15 +741,6 @@ export default {
       }
     }
   }
-  .cover {
-    // background-color: #f6f6f6;
-    background-color: #fcf7b5;
-    height: 10px;
-    position: fixed;
-    z-index: 2;
-    width: 595px;
-    top: 100px;
-  }
   .content {
     width: 595px;
     margin-top: 45px;
@@ -750,6 +750,7 @@ export default {
       border-radius: 2px;
       padding: 10px 15px;
       margin-top: 10px ;
+      box-shadow: 1px 1px 3px rgb(207, 206, 206);
       &:first-child {
         margin-top: 0;
       }

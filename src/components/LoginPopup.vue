@@ -12,25 +12,25 @@
         <div v-show="isactibveTab == 1">
           <div class="info-list username">
             <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-              <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" v-model="loginform.user_name_phone" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
+              <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" v-model="loginform.user_name_phone" @keyup="loginform.user_name_phone = loginform.user_name_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
             </div>
           </div>
           <div class="info-list password">
             <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-              <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" v-model="loginform.user_password" @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+              <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" v-model="loginform.user_password" @keyup="loginform.user_name_password = loginform.user_password.replace(/\s+/g,'')" @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
             </div>
           </div>
         </div>
         <div v-show="isactibveTab == 2">
           <div class="info-list userphone">
             <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 3}">
-              <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" v-model="loginform.user_phone" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0">
+              <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" v-model="loginform.user_phone" @keyup="loginform.user_phone = loginform.user_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0">
             </div>
           </div>
           <div class="info-list Verification-Code">
             <div class="get-code" @click="getCode">获取短信验证码<span class="time" v-if="showtime" @click.stop="">倒计时 {{restTime}} s</span></div>
             <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 4}">
-              <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" v-model="loginform.user_code" @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
+              <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" v-model="loginform.user_code" @keyup="loginform.user_code = loginform.user_code.replace(/\s+/g,'')" @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
             </div>
           </div>
         </div>

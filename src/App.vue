@@ -2,18 +2,21 @@
   <div id="app">
     <!-- 不是注册页时显示导航栏 -->
     <div class="header-nav">
-      <Header v-show="$route.path !=='/reg'" /> 
+      <p-header v-show="$route.path !=='/reg'" /> 
     </div>
     <router-view/>
+    <pFooter/>
   </div>
 </template>
 <script>
-import Header from '@/components/Header.vue'
+import PHeader from '@/components/Header.vue'
+import PFooter from '@/components/Footer.vue'
 
 export default {
   name: 'Home',
   components: {
-    Header
+    PHeader,
+    PFooter
   }
 }
 </script>
@@ -30,8 +33,8 @@ ul {
   list-style-type: none;
 }
 body {
-  background: #fcf8c6;
-  // background: rgb(253, 252, 234);
+  // background: #fcf8c6;
+  background: #f6f6f6;
   font-size: 15px;
   color: #121212;
     &::-webkit-scrollbar {
