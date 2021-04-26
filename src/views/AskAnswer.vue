@@ -1,5 +1,7 @@
 <template>
   <div class="askanswer">
+    <!-- 发表弹窗 -->
+    <PostPopup v-if="!isclosePostPopup"/>
     <div class="cover cover-one"></div>
     <div class="left-content">
       <div class="top-header">
@@ -11,7 +13,7 @@
             @click="getcontent(nav.params)"
           >{{nav.name}}</span>
         </div>
-        <el-button class="post-button" icon="el-icon-edit">发布问题</el-button>
+        <el-button class="post-button" icon="el-icon-edit" @click="post">发布问题</el-button>
       </div>
       <div class="cover cover-two"></div>
       <div class="content-list">
@@ -401,12 +403,14 @@
 import { showformattime } from "../utils/index.js";
 import LoginUserinfo from "@/components/LoginUserinfo.vue";
 import NoData from "../components/NoData"
+import PostPopup from "@/components/PostPopup.vue";
 
 export default {
   name: "AskAnswer",
   components: {
     LoginUserinfo,
-    NoData
+    NoData,
+    PostPopup
   },
   data() {
     return {
@@ -552,6 +556,14 @@ export default {
     };
   },
   methods: {
+    //发布问题
+    post() {
+      let PostPopup = {
+        isclose: false, //控制发布弹窗开闭
+        post: "question" //控制发布话题或帖子，默认帖子
+      };
+      this.$store.commit("changepostpopup", PostPopup);
+    },
     //导航栏切换
     getcontent(i) {
       let self = this;
@@ -626,6 +638,10 @@ export default {
   computed: {
     ActiveNav() {
       return this.$route.params.type;
+    },
+    //是否关闭发表弹窗
+    isclosePostPopup() {
+      return this.$store.state.PostPopup.isclose
     }
   },
   watch: {},

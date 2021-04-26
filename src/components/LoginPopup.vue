@@ -2,43 +2,41 @@
 <div>
   <div class="background-Mask"></div>
   <div class="login-box">
-    <div class="login-box">
-      <img class="esc-icon" src="../assets/icon/esc.png" alt="" @click="closePopup">
-      <ul class="login-nav">
-        <li class="loginway" :class="{activeTab: isactibveTab == 1}" @click="isactibveTab = 1">账号登录</li>
-        <li class="loginway" :class="{activeTab: isactibveTab == 2}"  @click="isactibveTab = 2">免密登录</li>
-      </ul>
-      <div class="login-form">
-        <div v-show="isactibveTab == 1">
-          <div class="info-list username">
-            <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-              <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" v-model="loginform.user_name_phone" @keyup="loginform.user_name_phone = loginform.user_name_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
-            </div>
-          </div>
-          <div class="info-list password">
-            <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-              <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" v-model="loginform.user_password" @keyup="loginform.user_name_password = loginform.user_password.replace(/\s+/g,'')" @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
-            </div>
+    <img class="esc-icon" src="../assets/icon/esc.png" alt="" @click="closePopup">
+    <ul class="login-nav">
+      <li class="loginway" :class="{activeTab: isactibveTab == 1}" @click="isactibveTab = 1">账号登录</li>
+      <li class="loginway" :class="{activeTab: isactibveTab == 2}"  @click="isactibveTab = 2">免密登录</li>
+    </ul>
+    <div class="login-form">
+      <div v-show="isactibveTab == 1">
+        <div class="info-list username">
+          <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
+            <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" v-model="loginform.user_name_phone" @keyup="loginform.user_name_phone = loginform.user_name_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
           </div>
         </div>
-        <div v-show="isactibveTab == 2">
-          <div class="info-list userphone">
-            <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 3}">
-              <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" v-model="loginform.user_phone" @keyup="loginform.user_phone = loginform.user_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0">
-            </div>
-          </div>
-          <div class="info-list Verification-Code">
-            <div class="get-code" @click="getCode">获取短信验证码<span class="time" v-if="showtime" @click.stop="">倒计时 {{restTime}} s</span></div>
-            <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 4}">
-              <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" v-model="loginform.user_code" @keyup="loginform.user_code = loginform.user_code.replace(/\s+/g,'')" @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
-            </div>
+        <div class="info-list password">
+          <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
+            <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" v-model="loginform.user_password" @keyup="loginform.user_name_password = loginform.user_password.replace(/\s+/g,'')" @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
           </div>
         </div>
-        <div class="info-list login-button" @click="toSignin">登录</div>
-        <div class="info-list login-help">
-          <span class="no-account">还没有账号？<router-link to="/register">立即注册</router-link></span>
-          <span class="forget-password">忘记密码？</span>
+      </div>
+      <div v-show="isactibveTab == 2">
+        <div class="info-list userphone">
+          <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 3}">
+            <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" v-model="loginform.user_phone" @keyup="loginform.user_phone = loginform.user_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0">
+          </div>
         </div>
+        <div class="info-list Verification-Code">
+          <div class="get-code" @click="getCode">获取短信验证码<span class="time" v-if="showtime" @click.stop="">倒计时 {{restTime}} s</span></div>
+          <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 4}">
+            <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" v-model="loginform.user_code" @keyup="loginform.user_code = loginform.user_code.replace(/\s+/g,'')" @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
+          </div>
+        </div>
+      </div>
+      <div class="info-list login-button" @click="toSignin">登录</div>
+      <div class="info-list login-help">
+        <span class="no-account">还没有账号？<router-link to="/register">立即注册</router-link></span>
+        <span class="forget-password">忘记密码？</span>
       </div>
     </div>
   </div>
@@ -64,7 +62,22 @@ export default {
     };
   },
   methods:{
+    stopMove() {
+      let m = function(e) {
+        e.preventDefault();
+      };
+      document.body.style.overflow = "hidden";
+      document.addEventListener("touchmove", m, { passive: false }); //禁止页面滑动
+    },
+    Move() {
+      let m = function(e) {
+        e.preventDefault();
+      };
+      document.body.style.overflow = ""; //出现滚动条
+      document.removeEventListener("touchmove", m, { passive: true });
+    },
     closePopup() {
+      this.Move()
       this.$store.commit('changestatus', true);
     },
     getCode() {
@@ -141,8 +154,10 @@ export default {
         }
       }
     }
+  },
+  mounted(){
+    this.stopMove()
   }
-  
 }
 </script>
 <style lang="scss" scoped>
@@ -153,7 +168,7 @@ export default {
   width: 100%;
   height: 100%;
   background: rgb(0, 0, 0);
-  opacity: 0.1;
+  opacity: 0.3;
   z-index: 999;
 }
 .login-box {

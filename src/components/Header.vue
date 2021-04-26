@@ -44,7 +44,7 @@
       </div>
     </div>
   </header>
-      <LoginPopup v-if="!iscloseloginPopup"/>
+  <LoginPopup v-if="!iscloseloginPopup"/>
   </div>
 </template>
 

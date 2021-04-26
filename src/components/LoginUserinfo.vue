@@ -101,24 +101,24 @@
         </div>
       </div>
       <div class="post-area" v-if="showpost">
-        <div class="post">发表动态</div>
-        <div class="post">发表文章</div>
-        <div class="post">创建话题</div>
+        <div class="post" @click="topost('post')">发表动态</div>
+        <div class="post" @click="topost('art')">发表文章</div>
+        <div class="post" @click="topost('topic')">创建话题</div>
       </div>
       <div class="mypost" v-else>
         <div class="post-item">
-          <img src="../assets/icon/post.png" alt="">
+          <img src="../assets/icon/post.png" alt />
           <span class="text">我发布的</span>
           <span class="value">3</span>
         </div>
         <div class="post-item">
-          <img src="../assets/icon/follow.png" alt="">
-          <span  class="text">我关注的</span>
+          <img src="../assets/icon/follow.png" alt />
+          <span class="text">我关注的</span>
           <span class="value">3</span>
         </div>
         <div class="post-item">
-          <img src="../assets/icon/answer.png" alt="">
-          <span  class="text">我回答的</span>
+          <img src="../assets/icon/answer.png" alt />
+          <span class="text">我回答的</span>
           <span class="value">3</span>
         </div>
       </div>
@@ -203,21 +203,35 @@ export default {
           console.log("验证码错误");
         }
       }
+    },
+    topost(i) {
+      let PostPopup = {
+        isclose: false, //控制发布弹窗开闭
+        post: "post" //控制发布话题或帖子，默认帖子
+      };
+      if (i == "post") {
+        this.$store.commit("changepostpopup", PostPopup);
+      } else if (i == "topic") {
+        PostPopup.post = 'topic'
+        this.$store.commit("changepostpopup", PostPopup);
+      } else {
+        // 
+      }
     }
   },
   computed: {
     showpost() {
-      let str = (this.$route.matched[0]||{}).path
-      if(str.indexOf("home") != -1 || str == '/home'){
-        return true
-      } else if(str.indexOf("askanswer") != -1 || str == '/askanswer/:type') {
-        return false
+      let str = (this.$route.matched[0] || {}).path;
+      if (str.indexOf("home") != -1 || str == "/home") {
+        return true;
+      } else if (str.indexOf("askanswer") != -1 || str == "/askanswer/:type") {
+        return false;
       }
-      return false
+      return false;
     }
   },
   beforeMount() {},
-  mounted(){
+  mounted() {
     // console.log((this.$route.matched[0]||{}).path)
   }
 };
@@ -376,6 +390,7 @@ export default {
     }
   }
   .person-info {
+    position: relative;
     .user-card {
       font-size: 14px;
       cursor: pointer;
@@ -441,7 +456,8 @@ export default {
         line-height: 40px;
         text-align: center;
         background-color: #fff;
-        box-shadow: 1px 1px 3px rgb(207, 206, 206),-1px 1px 3px rgb(207, 206, 206);
+        box-shadow: 1px 1px 3px rgb(207, 206, 206),
+          -1px 1px 3px rgb(207, 206, 206);
         margin-right: 8px;
         cursor: pointer;
         &:nth-last-child(1) {
@@ -459,7 +475,7 @@ export default {
       box-shadow: 1px 1px 3px rgb(207, 206, 206);
       padding: 5px 10px;
       .post-item {
-        padding:5px 5px;
+        padding: 5px 5px;
         display: flex;
         cursor: pointer;
         &:hover {
