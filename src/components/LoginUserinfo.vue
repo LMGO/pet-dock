@@ -81,7 +81,7 @@
       </div>
     </div>
     <div v-else class="person-info">
-      <div class="user-card">
+      <div class="user-card" @click.stop="toUserpage">
         <div class="background">
           <img src="../assets/img/reg4.jpg" alt />
         </div>
@@ -149,6 +149,14 @@ export default {
     };
   },
   methods: {
+    toUserpage() {
+      this.$router.push({
+        name: "User",
+        params:{
+          user_id:'111'
+        }
+      });
+    },
     getCode() {
       let self = this;
       if (
@@ -212,10 +220,10 @@ export default {
       if (i == "post") {
         this.$store.commit("changepostpopup", PostPopup);
       } else if (i == "topic") {
-        PostPopup.post = 'topic'
+        PostPopup.post = "topic";
         this.$store.commit("changepostpopup", PostPopup);
       } else {
-        // 
+        //
       }
     }
   },
@@ -418,6 +426,7 @@ export default {
           top: -30px;
           height: 60px;
           width: 60px;
+          object-fit: cover;
           border-radius: 50%;
           left: 50%;
           transform: translateX(-50%);

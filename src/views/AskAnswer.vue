@@ -1,7 +1,7 @@
 <template>
   <div class="askanswer">
     <!-- 发表弹窗 -->
-    <PostPopup v-if="!isclosePostPopup"/>
+    <PostPopup v-if="!isclosePostPopup" />
     <div class="cover cover-one"></div>
     <div class="left-content">
       <div class="top-header">
@@ -18,11 +18,16 @@
       <div class="cover cover-two"></div>
       <div class="content-list">
         <div class="hotlist" v-if="$route.params.type == 'hot'">
-          <li class="list-item" v-for="(hotitem,hotindex) in qalist" :key="hotindex" v-show="qalist.length">
+          <li
+            class="list-item"
+            v-for="(hotitem,hotindex) in qalist"
+            :key="hotindex"
+            v-show="qalist.length"
+          >
             <div class="question-title">
               <span class="title" @click="todetail(hotitem.question_id)">{{hotitem.question_title}}</span>
-              <span class="follow-question" v-if="!hotitem.isfollowed">关注问题</span>
-              <span class="follow-question" v-else>您已关注</span>
+              <span class="unfollow-question" v-if="!hotitem.isfollowed">关注问题</span>
+              <span class="follow-question" v-else>取消关注</span>
             </div>
             <!--有回答时才显示 -->
             <div v-if="hotitem.answer.answer_id">
@@ -79,7 +84,6 @@
                           icon="el-icon-caret-top"
                           v-else
                           @click.stop="agree(hotitem)"
-                          plain
                         >赞同 {{calculate(hotitem.answer.agreecount)}}</el-button>
                       </div>
                       <div class="answer">
@@ -191,14 +195,19 @@
               </el-collapse>
             </div>
           </li>
-          <NoData v-show="!qalist.length" text='暂无热门问答或获取失败'/>
+          <NoData v-show="!qalist.length" text="暂无热门问答或获取失败" />
         </div>
         <div class="follows" v-if="$route.params.type == 'follows'">
-          <li class="list-item" v-for="(hotitem,hotindex) in qalist" :key="hotindex" v-show="qalist.length || hotitem.isfollowed">
+          <li
+            class="list-item"
+            v-for="(hotitem,hotindex) in qalist"
+            :key="hotindex"
+            v-show="qalist.length || hotitem.isfollowed"
+          >
             <div class="question-title">
               <span class="title" @click="todetail(hotitem.question_id)">{{hotitem.question_title}}</span>
-              <span class="follow-question" v-if="!hotitem.isfollowed">关注问题</span>
-              <span class="follow-question" v-else>您已关注</span>
+              <span class="unfollow-question" v-if="!hotitem.isfollowed">关注问题</span>
+              <span class="follow-question" v-else>取消关注</span>
             </div>
             <!--有回答时才显示 -->
             <div v-if="hotitem.answer.answer_id">
@@ -255,7 +264,6 @@
                           icon="el-icon-caret-top"
                           v-else
                           @click.stop="agree(hotitem)"
-                          plain
                         >赞同 {{calculate(hotitem.answer.agreecount)}}</el-button>
                       </div>
                       <div class="answer">
@@ -367,18 +375,22 @@
               </el-collapse>
             </div>
             <div class="noanswer" v-else>
-              <el-button class="Button-answer" icon="el-icon-edit">去回答</el-button>
-              暂无回答，快来发表你的回答吧！
+              <el-button class="Button-answer" icon="el-icon-edit">去回答</el-button>暂无回答，快来发表你的回答吧！
             </div>
           </li>
-          <NoData v-show="!qalist.length" text='还没有您关注的问题'/>
+          <NoData v-show="!qalist.length" text="还没有您关注的问题" />
         </div>
         <div class="newlist" v-if="$route.params.type == 'new'">
-          <li class="list-item" v-for="(newitem,hotindex) in newquestion" :key="hotindex" v-show="newquestion.length">
+          <li
+            class="list-item"
+            v-for="(newitem,hotindex) in newquestion"
+            :key="hotindex"
+            v-show="newquestion.length"
+          >
             <div class="question-title">
               <span class="title" @click="todetail(newitem.question_id)">{{newitem.question_title}}</span>
-              <span class="follow-question" v-if="!newitem.isfollowed">关注问题</span>
-              <span class="follow-question" v-else>您已关注</span>
+              <span class="unfollow-question" v-if="!newitem.isfollowed">关注问题</span>
+              <span class="follow-question" v-else>取消关注</span>
             </div>
             <div class="noanswer">
               <div>暂无回答，快来发表你的回答吧！</div>
@@ -388,13 +400,13 @@
               <span>{{gettime(newitem.post_time)}}</span>
             </div>
           </li>
-          <NoData v-show="!newquestion.length==0" text='暂无新发布的问题'/>
+          <NoData v-show="!newquestion.length" text="暂无新发布的问题" />
         </div>
       </div>
     </div>
     <!-- 用户卡片和登录 -->
     <div class="right-area">
-      <LoginUserinfo text='暂无更多新问题'/>
+      <LoginUserinfo text="暂无更多新问题" />
     </div>
   </div>
 </template>
@@ -402,7 +414,7 @@
 // @ is an alias to /src
 import { showformattime } from "../utils/index.js";
 import LoginUserinfo from "@/components/LoginUserinfo.vue";
-import NoData from "../components/NoData"
+import NoData from "../components/NoData";
 import PostPopup from "@/components/PostPopup.vue";
 
 export default {
@@ -541,16 +553,16 @@ export default {
         {
           question_id: "1111",
           question_title: "如何给猫洗澡?",
-          answer_count:2,
-          follow_count:0,
-          post_time:'1619346234369'
+          answer_count: 2,
+          follow_count: 0,
+          post_time: "1619346234369"
         },
         {
           question_id: "1111",
           question_title: "如何给猫洗澡?",
-          answer_count:2,
-          follow_count:0,
-          post_time:'1619346234369'
+          answer_count: 2,
+          follow_count: 0,
+          post_time: "1619346234369"
         }
       ]
     };
@@ -567,9 +579,9 @@ export default {
     //导航栏切换
     getcontent(i) {
       let self = this;
-      console.log(self.ActiveNav)
-      if(self.ActiveNav == i) {
-        return
+      console.log(self.ActiveNav);
+      if (self.ActiveNav == i) {
+        return;
       }
       self.$router.replace({
         name: "AskAnswer",
@@ -628,11 +640,11 @@ export default {
     },
     todetail(id) {
       this.$router.push({
-        name: 'Question',
+        name: "Question",
         query: {
           question_id: id
         }
-      })
+      });
     }
   },
   computed: {
@@ -641,7 +653,7 @@ export default {
     },
     //是否关闭发表弹窗
     isclosePostPopup() {
-      return this.$store.state.PostPopup.isclose
+      return this.$store.state.PostPopup.isclose;
     }
   },
   watch: {},
@@ -753,7 +765,21 @@ export default {
               border-radius: 2px;
               &:hover {
                 background-color: #f8c405;
-                // color: rgb(255, 200, 0);
+              }
+            }
+            .unfollow-question {
+              margin-left: auto;
+              align-self: center;
+              text-align: center;
+              font-size: 12px;
+              color: #a5a5a5;
+              cursor: pointer;
+              width: 70px;
+              padding: 5px 8px;
+              background-color: #fff6d4;
+              border-radius: 2px;
+              &:hover {
+                background-color: #f8c405;
               }
             }
           }
@@ -763,6 +789,7 @@ export default {
             .user-avatar {
               height: 30px;
               width: 30px;
+              object-fit: cover;
               border-radius: 5px;
               border: 1px solid #f0f2f7;
             }
@@ -842,6 +869,10 @@ export default {
                 // padding: 7px 8px !important;
                 color: #fff;
                 background-color: #ffda5a !important;
+                &:hover {
+                  
+                  background-color: #f8c405 !important;
+                }
               }
               .el-disagree {
                 // padding: 7px 8px !important;
@@ -849,6 +880,9 @@ export default {
                 // background-color: #ecf5ff !important;
                 color: #a5a5a5;
                 background-color: #fff6d4 !important;
+                &:hover {
+                  background-color: #f8c405 !important;
+                }
               }
             }
             .answer {
@@ -968,6 +1002,7 @@ export default {
 .user-avatar {
   height: 30px;
   width: 30px;
+  object-fit: cover;
   border-radius: 50%;
   cursor: pointer;
 }

@@ -43,7 +43,7 @@
                 v-model="searchtext"
                 @blur="searchblur"
               ></el-input>
-              <div class="search-popover">
+              <div class="search-popover" v-show="searchTopicresult.length!=0 && searchtext">
                 <li
                   class="result-list"
                   v-for="(t,tindex) in searchTopicresult"
@@ -52,7 +52,7 @@
                 >
                   <span class="topic-name">#{{t.topic_name}}#</span>
                 </li>
-                <div v-show="searchTopicresult.length==0 && !searchtext" class="no-reslut">暂无匹配话题</div>
+                <div v-show="searchTopicresult.length==0 && searchtext" class="no-reslut">暂无匹配话题</div>
               </div>
             </div>
           </div>
@@ -161,7 +161,7 @@
         </div>
       </div>
       <!-- 创建话题 -->
-      <div class="post-topic">
+      <div class="post-topic" v-else>
         <img src="../assets/img/reg4.jpg" alt class="user-avatar" />
         <div class="question-body">
           <div class="title">
@@ -313,6 +313,7 @@ export default {
     //话题搜索失去焦点
     searchblur() {
       //有搜索结果时失去焦点不关闭
+      this.showinput = false;
       if (this.searchTopicresult.length > 0) {
         return;
       }

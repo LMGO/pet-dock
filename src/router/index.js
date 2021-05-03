@@ -71,11 +71,16 @@ const routes = [
     path: '/search',
     name: 'Search',
     component: () => import('../views/Search.vue')
-  },{
+  }, {
     path: '/question',
     name: 'Question',
     component: () => import('../views/Question.vue')
-  },{
+  }, {
+    path: '/user/:user_id/:type?',
+    name: 'User',
+    component: () => import('../views/User.vue'),
+  },
+  {
     path: '*',
     redirect: '/home'
   }

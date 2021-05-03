@@ -35,8 +35,8 @@
               <div class="user-info-time">
                 <div class="user-name">{{item.userinfo.user_nickname}}</div>
                 <div class="time" v-html="gettime(item.post_time)"></div>
-                <!-- <div  >关注TA</div> -->
-                <el-button class="follow" v-if="!item.isfollow">关注TA</el-button>
+                <el-button class="unfollow" v-if="!item.isfollowed">关注TA</el-button>
+                <el-button class="follow" v-else>已关注</el-button>
               </div>
               <div class="detail-body">
                 <div class="topiclist">
@@ -177,8 +177,8 @@
               <div class="user-info-time">
                 <div class="user-name">{{item.userinfo.user_nickname}}</div>
                 <div class="time" v-html="gettime(item.post_time)"></div>
-                <!-- <div  >关注TA</div> -->
-                <el-button class="follow" v-if="!item.isfollow">关注TA</el-button>
+                <el-button class="unfollow" v-if="!item.isfollowed">关注TA</el-button>
+                <el-button class="follow" v-else>已关注</el-button>
               </div>
               <div class="detail-body">
                 <div class="topiclist">
@@ -351,16 +351,16 @@ export default {
           },
           post_style: "video", //（动态分类text/image/video）
           user_grade: 100, //(用户等级0-1000)
-          isfollow: false, //(是否关注)
+          isfollowed: false, //(是否关注)
           post_conent: "猫仔陪伴的一天，开心", //（帖子内容）
           postimg: [], //按顺序
           post_video: [videotest], //（视频地址）
           post_time: "1618654274090",
-          likes_count: 111532, //（点赞数）
-          collection_count: 200, //（收藏数）
-          reply_count: 21550, //（评论数）
+          likes_count: 12, //（点赞数）
+          collection_count: 0, //（收藏数）
+          reply_count: 50, //（评论数）
           isliked: false,
-          isfollowed: true, // （是否收藏了）
+          iscollection: false, // （是否收藏了）
           comments_sort_by: "hot",
           comments: [
             //评论数组
@@ -448,7 +448,7 @@ export default {
           },
           post_style: "video", //（动态分类text/image/video）
           user_grade: 100, //(用户等级0-1000)
-          isfollow: false, //(是否关注)
+          isfollowed: true, //(是否关注)
           post_conent: "猫仔陪伴的一天，开心", //（帖子内容）
           postimg: [], //按顺序
           post_video: [videotest], //（视频地址）
@@ -457,7 +457,7 @@ export default {
           collection_count: 20, //（收藏数）
           reply_count: 100, //（评论数）
           isliked: false,
-          isfollowed: true, // （是否收藏了）
+          iscollection: true, // （是否收藏了）
           comments: [] //评论数组
         }
       ]
@@ -628,8 +628,27 @@ export default {
               cursor: pointer;
               border: 1px solid rgb(238, 236, 236);
               padding: 5px 8px;
-              background-color: #fdda5a;
+              background-color: #fdda5a !important;
               border-radius: 3px;
+              &:hover {
+                background-color: #f8c405 !important;
+              }
+            }
+            .unfollow {
+              line-height: 14px;
+              position: absolute;
+              right: 0;
+              top: 50%;
+              transform: translateY(-50%);
+              color:#a5a5a5;
+              cursor: pointer;
+              border: 1px solid rgb(238, 236, 236);
+              padding: 5px 8px;
+              background-color: #fff6d4 !important;
+              border-radius: 3px;
+              &:hover {
+                background-color: #f8c405 !important;
+              }
             }
           }
           .detail-body {
@@ -759,6 +778,7 @@ export default {
 .user-avatar {
   height: 30px;
   width: 30px;
+  object-fit: cover;
   border-radius: 50%;
   cursor: pointer;
 }
