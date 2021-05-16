@@ -95,7 +95,13 @@ export default {
       return this.$store.state.PostPopup.isclose
     }
   },
-  watch: {}
+  watch: {},
+  mounted() {
+    if(localStorage.userInfo){
+      let userInfo = JSON.parse(localStorage.userInfo);
+      this.$store.dispatch("getUserInfo", userInfo);
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>

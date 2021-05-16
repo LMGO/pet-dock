@@ -6,7 +6,7 @@
       <!-- 发布动态 -->
       <div class="dynamic-area" v-if="$store.state.PostPopup.post =='post'">
         <div class="title">
-          <img src="../assets/img/reg4.jpg" alt class="user-avatar" />
+          <img :src="$store.state.userInfo.user_avatar" alt class="user-avatar" />
           <span class="text">半途,和大家分享你的宠坞日常吧！</span>
         </div>
         <div class="post-content">
@@ -15,7 +15,7 @@
             :autosize="{ minRows: 2, maxRows: 6}"
             placeholder="和大家分享你的宠坞日常吧！"
             maxlength="200"
-            v-model="dynamic.post_conent"
+            v-model="dynamic.post_content"
             show-word-limit
           ></el-input>
           <div class="addtopic">
@@ -26,7 +26,7 @@
               closable
               @close="closetag(topicindex)"
               type
-            >#{{question.question_title}}#</el-tag>
+            >#{{topic.topic_name}}#</el-tag>
             <el-button
               class="add-button"
               v-show="dynamic.topiclist.length <3&&!showinput"
@@ -41,14 +41,14 @@
                 placeholder="搜索话题标签"
                 prefix-icon="el-icon-search"
                 v-model="searchtext"
-                @blur="searchblur"
+                @blur="searchblur()"
               ></el-input>
               <div class="search-popover" v-show="searchTopicresult.length!=0 && searchtext">
                 <li
                   class="result-list"
                   v-for="(t,tindex) in searchTopicresult"
                   :key="tindex"
-                  @click.stop="addtopic(t)"
+                  @click="addtopic(t)"
                 >
                   <span class="topic-name">#{{t.topic_name}}#</span>
                 </li>
@@ -65,6 +65,7 @@
             <el-upload
               class="up"
               :action="upload_qiniu_url"
+              :data="qiniuData"
               list-type="picture-card"
               :before-upload="beforeUpload1"
               :on-success="handleSuccess1"
@@ -73,7 +74,7 @@
               :multiple="true"
               :limit="9"
               :on-remove="handleRemove"
-              ref="uploadimage"
+              ref="uploadpostimage"
               accept="image/jpg"
             >
               <i class="el-icon-plus"></i>
@@ -100,15 +101,15 @@
           </div>
           <div>
             <span style="margin-right:15px">发布方式：</span>
-            <el-radio v-model="dynamic.is_public" label="true">公开发布</el-radio>
-            <el-radio v-model="dynamic.is_public" label="false">仅自己可见</el-radio>
+            <el-radio v-model="dynamic.is_public" :label="1">公开发布</el-radio>
+            <el-radio v-model="dynamic.is_public" :label="0">仅自己可见</el-radio>
           </div>
           <el-button type="primary" class="publish-post" @click="publishDynamic">发布动态</el-button>
         </div>
       </div>
       <!-- 创建问题 -->
       <div class="question-area" v-else-if="$store.state.PostPopup.post == 'question'">
-        <img src="../assets/img/reg4.jpg" alt class="user-avatar" />
+        <img :src="$store.state.userInfo.user_avatar" alt class="user-avatar" />
         <div class="question-body">
           <div class="title">
             <el-input
@@ -140,37 +141,38 @@
             <div class="text">添加图片描述(一张,可不添加)：</div>
             <el-upload
               :action="upload_qiniu_url"
+              :data="qiniuData"
               list-type="picture-card"
-              :before-upload="beforeUpload1"
-              :on-success="handleSuccess1"
-              :on-error="handleError1"
+              :before-upload="beforeUpload4"
+              :on-success="handleSuccess4"
+              :on-error="handleError4"
               :auto-upload="false"
               :multiple="true"
               :limit="1"
               :on-remove="handleRemove"
-              ref="uploadimage"
+              ref="uploadquestionimage"
               accept="image/jpg"
             >
               <i class="el-icon-plus"></i>
             </el-upload>
           </div>
           <div class="question-isanonymous">
-            <el-checkbox v-model="question.isanonymous">匿名发布</el-checkbox>
+            <el-checkbox v-model="question.isanonymous" :false-label="0" :true-label="1">匿名发布</el-checkbox>
           </div>
           <el-button type="primary" class="publish-question" @click="publishquestion">发布问题</el-button>
         </div>
       </div>
       <!-- 创建话题 -->
       <div class="post-topic" v-else>
-        <img src="../assets/img/reg4.jpg" alt class="user-avatar" />
+        <img :src="$store.state.userInfo.user_avatar" alt class="user-avatar" />
         <div class="question-body">
           <div class="title">
             <el-input
               class="input-text"
               type="textarea"
-              ref="questionname"
+              ref="topic_name"
               placeholder="填写话题名称"
-              v-model="question.question_title"
+              v-model="topic.topic_name"
               maxlength="15"
               :autosize="{ minRows: 1, maxRows: 2}"
               @keyup="topic.topic_name = topic.topic_name.replace(/\s+/g,'')"
@@ -182,6 +184,7 @@
             <div>
               <el-input
                 type="textarea"
+                ref="topic_descrption"
                 :autosize="{ minRows: 4, maxRows: 6}"
                 placeholder="描述一下话题，能方便大家更好的参与"
                 maxlength="200"
@@ -195,15 +198,16 @@
             <div class="text">添加话题封面(一张,可不添加)：</div>
             <el-upload
               :action="upload_qiniu_url"
+              :data="qiniuData"
               list-type="picture-card"
-              :before-upload="beforeUpload1"
-              :on-success="handleSuccess1"
-              :on-error="handleError1"
+              :before-upload="beforeUpload3"
+              :on-success="handleSuccess3"
+              :on-error="handleError3"
               :auto-upload="false"
               :multiple="true"
               :limit="1"
               :on-remove="handleRemove"
-              ref="uploadimage"
+              ref="uploadtopicimage"
               accept="image/jpg"
             >
               <i class="el-icon-plus"></i>
@@ -217,13 +221,15 @@
   </div>
 </template>
 <script>
-// import { newcode } from '@/utils/index.js'
-import // addPostAndImages,
-// addPost,
-// addPostImage,
-// addPostVideo,
-// getQiniuToken
-"@/utils/api/post.js";
+import { uuid, getTime } from "@/utils/index.js";
+import {
+  getQiniuToken,
+  newpost,
+  postimage,
+  postvideo
+} from "@/utils/api/post.js";
+import { newtopic, topicimage, getbyname } from "@/utils/api/topic.js";
+import { newquestion, questionimage } from "@/utils/api/question.js";
 export default {
   data() {
     return {
@@ -236,7 +242,7 @@ export default {
       // 七牛云返回储存图片的子域名
       upload_qiniu_addr: "http://cdn.fengblog.xyz/",
       dynamic: {
-        is_public: "true", //默认
+        is_public: 1, //默认
         user_id: "", //状态管理得到
         post_id: "", //发表前前端生成
         post_content: "",
@@ -244,7 +250,8 @@ export default {
         topiclist: [],
         post_time: ""
       },
-      imagelist: [], //图片和帖子内容分开发表
+      postimagelist: [], //图片先上传,得到地址后在整体发表
+      postvideo: [], //帖子视频
       showinput: false,
       searchtext: "",
       searchTopicresult: [], //搜索话题结果
@@ -257,14 +264,14 @@ export default {
         question_title: "",
         question_description: "",
         question_cover: "", //（一张）
-        isanonymous: false,
+        isanonymous: 0,
         post_time: "",
         user_id: ""
       },
       //话题部分---------------------
       topic: {
         topic_id: "",
-        topic_title: "",
+        topic_name: "",
         topic_description: "",
         topic_cover: "", //（一张）
         post_time: "",
@@ -298,7 +305,7 @@ export default {
       this.Move();
       this.$store.commit("changepostpopup", PostPopup);
     },
-    //------------动态部分--------------------------------------------
+    //-----------------------------动态部分--------------------------------------------
     //删除话题标签
     closetag(index) {
       this.dynamic.topiclist.splice(index, 1);
@@ -313,11 +320,13 @@ export default {
     //话题搜索失去焦点
     searchblur() {
       //有搜索结果时失去焦点不关闭
-      this.showinput = false;
       if (this.searchTopicresult.length > 0) {
         return;
       }
-      this.cleardata();
+      this.showinput = false;
+      this.searchtext = "";
+
+      // this.cleardata();
     },
     //清空数据
     cleardata() {
@@ -326,6 +335,8 @@ export default {
       this.searchTopicresult = [];
       this.searchtext = "";
       this.dynamic = {};
+      this.topic = {};
+      this.question = {};
     },
     //选中添加话题
     addtopic(i) {
@@ -338,10 +349,44 @@ export default {
       }
       this.dynamic.topiclist.push(i);
       console.log(this.dynamic.topiclist);
+      this.showinput = false;
+      this.searchTopicresult = [];
+      this.searchtext = "";
+    },
+    //发布动态
+    async publishDynamic() {
+      if (this.dynamic.post_content == "") {
+        this.$message.error("帖子内容不能为空！");
+        return;
+      }
+      this.dynamic.post_id = uuid("post");
+      let data = {
+        post_id: this.dynamic.post_id,
+        is_public: this.dynamic.is_public,
+        user_id: this.$store.state.userInfo.user_id,
+        post_content: this.dynamic.post_content,
+        post_style: "text",
+        topiclist: this.dynamic.topiclist,
+        post_time: getTime()
+      };
+      console.log(data);
+      newpost(data).then(res => {
+        if (res.data.code == 0) {
+          //回调中上传图片或视频
+          if (this.dynamic.post_style == "image") {
+            this.$message.success("帖子内容发表成功，正在上传图片！");
+            this.$refs.uploadpostimage.submit();
+          } else {
+            this.$message.success("帖子内容发表成功，正在上传视频！");
+            this.$refs.uploadvideo.submit();
+          }
+        }
+      });
     },
     /*------------------------图片事件-----------------------*/
+    //动态图片部分
     beforeUpload1(file) {
-      // this.qiniuData.key = uuid();
+      this.qiniuData.key = uuid("image");
       const isJPG = file.type === "image/jpeg";
       const isPNG = file.type === "image/png";
       const isLt5M = file.size / 1024 / 1024 < 5;
@@ -354,20 +399,108 @@ export default {
         return false;
       }
     },
-    handleSuccess1(res) {
+    async handleSuccess1(res) {
       let imageInfo = {
-        id: "",
-        pid: ""
+        image_id: "",
+        post_id: ""
       };
-      imageInfo.id = this.upload_qiniu_addr + res.key;
-      imageInfo.pid = this.postData.post.id;
+      imageInfo.image_id = this.upload_qiniu_addr + res.key;
+      imageInfo.post_id = this.dynamic.post_id;
       console.log(imageInfo);
-      // addPostImage(imageInfo); //发表图片
-      this.dialogFormVisible = false;
+      await postimage(imageInfo).then(res => {
+        if (res.data.code == 0) {
+          this.$message.success("上传图片成功！");
+        } else {
+          this.$message.error("上传图片失败！");
+        }
+      });
+      this.closepopup();
     },
     handleError1() {
       this.$message({
         message: "上传失败",
+        duration: 2000,
+        type: "warning"
+      });
+    },
+    //话题图片部分
+    beforeUpload3(file) {
+      this.qiniuData.key = uuid("image");
+      const isJPG = file.type === "image/jpeg";
+      const isPNG = file.type === "image/png";
+      const isLt5M = file.size / 1024 / 1024 < 5;
+      if (!isJPG && !isPNG) {
+        this.$message.error("图片只能是 JPG/PNG 格式!");
+        return false;
+      }
+      if (!isLt5M) {
+        this.$message.error("图片大小不能超过 5MB!");
+        return false;
+      }
+    },
+    //发表后上传七牛云生成图片地址
+    handleSuccess3(res) {
+      //话题封面图地址
+      let imageInfo = {
+        topic_cover: "",
+        topic_id: this.topic.topic_id
+      };
+      imageInfo.topic_cover = this.upload_qiniu_addr + res.key;
+      imageInfo.topic_id = this.topic.topic_id;
+      console.log(imageInfo);
+      //上传图片的接口
+      topicimage(imageInfo).then(res => {
+        if (res.data.code == 0) {
+          this.$message.success("上传图片成功！");
+        } else {
+          this.$message.error("上传图片失败！");
+        }
+      });
+      this.closepopup();
+    },
+    handleError3() {
+      this.$message({
+        message: "上传失败",
+        duration: 2000,
+        type: "warning"
+      });
+    },
+    //问题图片部分
+    beforeUpload4(file) {
+      this.qiniuData.key = uuid("image");
+      const isJPG = file.type === "image/jpeg";
+      const isPNG = file.type === "image/png";
+      const isLt5M = file.size / 1024 / 1024 < 5;
+      if (!isJPG && !isPNG) {
+        this.$message.error("图片只能是 JPG/PNG 格式!");
+        return false;
+      }
+      if (!isLt5M) {
+        this.$message.error("图片大小不能超过 5MB!");
+        return false;
+      }
+    },
+    //发表时先上传七牛云生成图片地址再和问题内容一起请求
+    async handleSuccess4(res) {
+      //问题图片地址
+      let imageInfo = {
+        question_cover: "",
+        question_id: ""
+      };
+      imageInfo.question_cover = this.upload_qiniu_addr + res.key;
+      imageInfo.question_id = this.question.question_id;
+      console.log(imageInfo);
+      //上传图片的接口
+      await questionimage(imageInfo).then(res=>{
+        if(res.data.code==0){
+          this.$message.success("上传问题图片成功！");
+          this.closepopup()
+        }
+      });
+    },
+    handleError4() {
+      this.$message({
+        message: "图片上传失败",
         duration: 2000,
         type: "warning"
       });
@@ -381,60 +514,14 @@ export default {
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
-
-    // elementUI上传
-    // uploadFile(file) {
-    //   this.formDate.append("file", file.file);
-    // },
-    /*发表帖子*/
-    // toAddPost() {
-    //   let _this = this;
-    //   this.postData.post.id = uuid();
-    //   this.postData.post.time = getTime();
-    //   this.postData.post.uid = this.$store.state.userInfo.id;
-    //   if (this.postData.post.title == "" || this.postData.post.content == "") {
-    //     this.$message.error("标题和内容不能为空！");
-    //     return;
-    //   }
-    //   addPost(this.postData.post).then(res => {
-    //     console.log(res.data);
-    //     if (res.data.message == "程序员开小差了，请您稍后再试。") {
-    //       _this.$message.error("程序员开小差了，请您稍后再试~");
-    //       console.log("嚯嚯嚯嚯嚯嚯嚯嚯嚯");
-    //       return;
-    //     } else {
-    //       // 上传图片或视频
-    //       _this.$refs.upload.submit();
-    //       _this.$message.success("发表成功！");
-    //       _this.$emit("fuc", "1");
-    //     }
-    //   });
-    // },
-    //发布动态
-    publishDynamic() {
-      console.log(this.dynamic);
-      // this.$refs.upload.clearFiles();
-      // this.formDate = new FormData();
-      // this.$refs.upload.submit();
-      // this.formDate.append("posting_id", "111");
-      // console.log(this.formDate.get("file"));
-
-      // this.dynamic.post_id = uuid();
-      // this.dynamic.post_time = getTime();
-      // this.dynamic.user_id = this.$store.state.userInfo.id;
-      if (this.dynamic.post_content == "") {
-        this.$message.error("内容不能为空！");
-        return;
-      }
-      //发布帖子内容，回调发布图片或者视频,成功后关闭清除内容
-    },
     submitUpload() {
       //提交上传
       this.$refs.upload.submit();
     },
     /*------------------------视频事件-----------------------*/
+    //动态视频部分
     beforeUpload2(file) {
-      // this.qiniuData.key = uuid();
+      this.qiniuData.key = uuid("video");
       const fileType = file.type;
       const isLt50M = file.size / 1024 / 1024 < 50; // 算出文件大小
       if (!isLt50M) {
@@ -451,16 +538,23 @@ export default {
       }
     },
     handleSuccess2(res) {
+      //视频地址
       let videoInfo = {
-        id: "",
-        pid: ""
+        video_id: "",
+        post_id: ""
       };
-      videoInfo.id = this.upload_qiniu_addr + res.key;
-      videoInfo.pid = this.postData.post.id;
+      videoInfo.video_id = this.upload_qiniu_addr + res.key;
+      videoInfo.post_id = this.dynamic.post_id;
       console.log(videoInfo);
-      // addPostVideo(videoInfo); //发表视频
-      this.dialogFormVisible = false;
-      this.$message.success("发表成功！");
+      //上传视频的接口
+      postvideo(videoInfo).then(res => {
+        if (res.data.code == 0) {
+          this.$message.success("上传视频成功！");
+        } else {
+          this.$message.error("上传视频失败！");
+        }
+      }); //发表视频
+      this.closepopup();
     },
     handleError2() {
       this.$message({
@@ -470,80 +564,154 @@ export default {
       });
     },
     //---------问题--------------------------------------------
-    publishquestion() {
-      let self = this
-      if(!self.question.question_title) {
-        this.$message({
+    async publishquestion() {
+      let self = this;
+      if (!self.question.question_title) {
+        self.$message({
           message: "问题不能为空",
           duration: 2000,
           type: "warning"
         });
-        this.$nextTick(() => {
-          this.$refs.questiontitle.focus();
+        self.$nextTick(() => {
+          self.$refs.questiontitle.focus();
         });
-        return
+        return;
       }
-      if(self.question.question_title[self.question.question_title.length-1]!=='?'||self.question.question_title[self.question.question_title.length-2]=='?') {
-        this.$message({
+      if (
+        (self.question.question_title[
+          self.question.question_title.length - 1
+        ] !== "?" &&
+          self.question.question_title[
+            self.question.question_title.length - 2
+          ] == "?") ||
+        (self.question.question_title[
+          self.question.question_title.length - 1
+        ] !== "？" &&
+          self.question.question_title[
+            self.question.question_title.length - 2
+          ] == "？")
+      ) {
+        self.$message({
           message: "问题需要以单个问号结尾",
           duration: 2000,
           type: "warning"
         });
-        this.$nextTick(() => {
-          this.$refs.questiontitle.focus();
+        self.$nextTick(() => {
+          self.$refs.questiontitle.focus();
         });
-        return
+        return;
       }
-      console.log(self.question.isanonymous)
+      this.question.question_id = uuid("question");
+      let data = {
+        question_id: this.question.question_id,
+        question_title: this.question.question_title,
+        question_description: this.question.question_description,
+        user_id: this.$store.state.userInfo.user_id,
+        question_cover: "",
+        post_time: getTime(),
+        is_anonymous: this.question.isanonymous
+      };
+      console.log(data);
+      await newquestion(data).then(res=>{
+        if(res.data.code==0){
+          this.$message.success("帖子内容发表成功，正在上传图片！");
+          self.$refs.uploadquestionimage.submit();
+        }
+      })
     },
     //---------话题--------------------------------------------
     publishtopic() {
-      let self = this
-      if(!self.topic.topic_name) {
-        this.$message({
+      let self = this;
+      if (!self.topic.topic_name) {
+        self.$message({
           message: "话题名称不能为空",
           duration: 2000,
           type: "warning"
         });
         this.$nextTick(() => {
-          this.$refs.topic.topic_name.focus();
+          self.$refs.topic_name.focus();
         });
-        return
+        return;
       }
-      if(self.topic.topic_name.length<4) {
-        this.$message({
+      if (self.topic.topic_name.length < 4) {
+        self.$message({
           message: "话题名称太短",
           duration: 2000,
           type: "warning"
         });
-        this.$nextTick(() => {
-          this.$refs.topicname.focus();
+        self.$nextTick(() => {
+          self.$refs.topic_name.focus();
         });
-        return
+        return;
       }
+      self.topic.topic_id = uuid("topic");
+      let data = {
+        topic_id: self.topic.topic_id,
+        topic_name: self.topic.topic_name,
+        topic_description: self.topic.topic_description,
+        user_id: self.$store.state.userInfo.user_id,
+        topic_cover: "",
+        post_time: getTime()
+      };
+      console.log(data);
+      //发表接口
+      newtopic(data).then(res => {
+        if (res.data.code == 0) {
+          self.$message({
+            message: "话题内容创建成功",
+            duration: 2000,
+            type: "success"
+          });
+          self.$refs.uploadtopicimage.submit();
+        }
+      });
+      //回调中上传话题图片
+      // console.log(self.topic)
     }
   },
   watch: {
     "dynamic.post_style": {
       handler(val, oldVal) {
-        if (oldVal == "image" && this.$refs.uploadimage !== undefined) {
-          this.$refs.uploadimage.clearFiles();
+        if (oldVal == "image" && this.$refs.uploadpostimage !== undefined) {
+          this.$refs.uploadpostimage.clearFiles();
         } else if (oldVal == "image" && this.$refs.uploadvideo !== undefined) {
           this.$refs.uploadvideo.clearFiles();
         }
       },
       immediate: true
       // deep:true
+    },
+    searchtext: {
+      async handler(val) {
+        if (val !== "") {
+          let params = {
+            topic_name: val
+          };
+          await getbyname(params).then(res => {
+            if (res.data.code == 0) {
+              this.searchTopicresult = res.data.data;
+              console.log(this.searchTopicresult);
+              console.log(this.searchtext);
+            }
+          });
+          console.log(val);
+        }
+      },
+      immediate: true
     }
   },
   mounted() {
     this.stopMove();
+    if (localStorage.userInfo) {
+      let userInfo = JSON.parse(localStorage.userInfo);
+      this.$store.dispatch("getUserInfo", userInfo);
+    }
   },
   created() {
-    // getQiniuToken().then(res => {
-    //   this.qiniuData.token = res.data;
-    //   console.log(this.qiniuData.token);
-    // });
+    getQiniuToken().then(res => {
+      this.qiniuData.token = res.data;
+      console.log(this.qiniuData.token);
+    });
   }
 };
 </script>
@@ -661,7 +829,8 @@ export default {
       }
     }
   }
-  .question-area,.post-topic {
+  .question-area,
+  .post-topic {
     display: flex;
     .user-avatar {
       height: 35px;
@@ -707,7 +876,6 @@ export default {
       }
     }
   }
-
 }
 //动态部分
 .el-upload-list--picture-card .el-upload-list__item-actions {

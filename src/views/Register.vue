@@ -30,30 +30,30 @@
             <div>
               <div class="info-list password">
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-                  <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请设置密码 5-15 位" name="password" v-model="regform.password"  @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0" @keyup="regform.password = regform.password.replace(/\s+/g,'')">
+                  <input ref="password" type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请设置密码 5-15 位" name="password" v-model="regform.password"  @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0" @keyup="regform.password = regform.password.replace(/\s+/g,'')">
                 </div>
               </div>
               <div class="info-list password">
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-                  <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="再次确认密码" name="password" v-model="regform.passwordagain" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0"  @keyup="regform.passwordagain = regform.passwordagain.replace(/\s+/g,'')">
+                  <input ref="passwordagain" type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="再次确认密码" name="password" v-model="regform.passwordagain" tabindex="2"  @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0"  @keyup="regform.passwordagain = regform.passwordagain.replace(/\s+/g,'')">
                 </div>
               </div>
               <div class="info-list userphone">
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 3}">
-                  <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" name="user_phone" v-model="regform.user_phone" tabindex="3" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0"  @keyup="regform.user_phone = regform.user_phone.replace(/\s+/g,'')">
+                  <input ref="phone" type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" name="user_phone" v-model="regform.user_phone" tabindex="3" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0"  @keyup="regform.user_phone = regform.user_phone.replace(/\s+/g,'')">
                 </div>
               </div>
               <div class="info-list Verification-Code">
                 <div class="get-code" @click="getCode">获取短信验证码<span class="time" v-if="showtime" @click.stop="">倒计时 {{restTime}} s</span></div>
                 <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 4}">
-                  <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" name="code" v-model="regform.code" tabindex="4"  @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0"  @keyup="regform.code = regform.code.replace(/\s+/g,'')">
+                  <input ref="code" type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" name="code" v-model="regform.code" tabindex="4"  @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0"  @keyup="regform.code = regform.code.replace(/\s+/g,'')">
                 </div>
               </div>
               <div class="info-list Verification-Code">
                 <div class="">请选择您的性别 :</div>
                 <div class="gender-select">
-                  <label><input type="radio" name="sex" value="男" v-model="regform.user_gender">男士</label>
-                  <label><input type="radio" name="sex" value="女" v-model="regform.user_gender">女士</label>
+                  <label><input type="radio" name="sex" :value='1' v-model="regform.user_gender">男士</label>
+                  <label><input type="radio" name="sex" :value='0' v-model="regform.user_gender">女士</label>
                 </div>
               </div>
             </div>
@@ -70,6 +70,8 @@
 	</div>
 </template>
 <script>
+import { signup } from '../utils/api/user'
+import { newcode,uuid, getTime } from '@/utils/index.js'
 export default {
   data() {
     return {
@@ -77,7 +79,7 @@ export default {
       regform:{
         password: '',
         passwordagain: '',
-        user_gender: '男',
+        user_gender: 1,
         user_phone:'',
         code: ''
       },
@@ -90,12 +92,41 @@ export default {
     getCode() {
       let self = this;
       if (!self.regform.user_phone || !(/^1[34578]\d{9}$/.test(self.regform.user_phone))){
-        self.input_wrap_focus = 3
+        // self.input_wrap_focus = 3
         //提示 手机号格式错误或为空
-        console.log("手机号为空或格式错误");
+        self.$message({
+          message: "手机号为空或格式错误",
+          duration: 2000,
+          type: "warning"
+        });
+        self.$nextTick(() => {
+          this.$refs.phone.focus();
+        });
       } else {
         self.input_wrap_focus = 0
         //获取验证码
+        let code = newcode()
+        let data ={
+          phone: this.regform.user_phone,
+          templateId: '540',
+          variables: code
+        }
+        console.log(data)
+        // self.axios.post('http://aliapi.market.alicloudapi.com/smsApi/verifyCode/send', 
+        // self.$qs.stringify(
+        //   data
+        // ),
+        // {
+        //   headers: {
+        //     'Authorization': 'APPCODE' +" "+'fd36e8a662b2495b93b1455020370263',
+        //   }
+        // })
+        // .then(function (response) {
+        //   console.log(response);
+        // })
+        // .catch(function (error) {
+        //   console.log(error);
+        // });
         const TIME_COUNT = 60;
         if (!self.timer) {
           self.restTime = TIME_COUNT;
@@ -115,33 +146,115 @@ export default {
     signUp() {
       let self = this;
       if (!self.regform.user_phone){
-        self.input_wrap_focus = 3
+        // self.input_wrap_focus = 3
         //提示 请填写手机号
-        console.log("请填写手机号");
-        
+        self.$message({
+          message: "请填写手机号",
+          duration: 2000,
+          type: "warning"
+        });
+        self.$nextTick(() => {
+          this.$refs.phone.focus();
+        });
+        return
       } else if (!self.regform.code){
-        self.input_wrap_focus = 4
+        // self.input_wrap_focus = 4
         //提示 请填写验证码
-        console.log("请填写验证码");
-
+        self.$message({
+          message: "请填写验证码",
+          duration: 2000,
+          type: "warning"
+        });
+        self.$nextTick(() => {
+          this.$refs.code.focus();
+        });
+        return
       }
       else if (self.regform.password !== self.regform.passwordagain) {
         //提示 密码不一致
-        self.input_wrap_focus = 2
-        console.log("两次输入的密码不一致");
+        // self.input_wrap_focus = 2
+        // console.log("两次输入的密码不一致");
+        self.$message({
+          message: "两次输入的密码不一致",
+          duration: 2000,
+          type: "warning"
+        });
+        self.$nextTick(() => {
+          this.$refs.passwordagain.focus();
+        });
         self.regform.passwordagain = ''
-
+        return
       } else if ((self.regform.password == self.regform.passwordagain)&&(self.regform.password.length < 5)) {
         //提示 密码长度小于5
-        self.input_wrap_focus = 1
-        console.log("密码长度小于5，请修改密码");
+        // self.input_wrap_focus = 1
+        // console.log("密码长度小于5，请修改密码");
+        self.$message({
+          message: "密码长度小于5，请修改密码",
+          duration: 2000,
+          type: "warning"
+        });
+        self.$nextTick(() => {
+          this.$refs.password.focus();
+        });
         self.regform.passwordagain = ''
+        return
       } else if (self.regform.code.length!==6) {
         //提示 密码长度小于5
-        self.input_wrap_focus = 4
-        console.log("验证码错误");
+        // self.input_wrap_focus = 4
+        // console.log("验证码错误");
         self.regform.code = ''
+        self.$message({
+          message: "验证码错误",
+          duration: 2000,
+          type: "warning"
+        });
+        self.$nextTick(() => {
+          this.$refs.code.focus();
+        });
+        return
       }
+      let imagehead = ''
+      if(Math.floor(Math.random()*10)<=3){
+        imagehead = 'http://cdn.fengblog.xyz/54f9b66041ab8c16'
+      }else if(Math.floor(Math.random()*10)<=6){
+        imagehead = 'http://cdn.fengblog.xyz/f8fb1a8d4fb78f16'
+      } else {
+        imagehead = 'http://cdn.fengblog.xyz/5e1bf0a2456f8d9d'
+      }
+      let data = {
+        user_id:uuid('user'),
+        user_nickname:uuid('name'),
+        user_gender:self.regform.user_gender,
+        user_password:self.regform.password,
+        user_phone:self.regform.user_phone,
+        user_type:0,
+        user_avatar:imagehead,
+        register_time:getTime()
+      }
+      console.log(data)
+      //注册
+      signup(data).then(res=>{
+        if(res.data.code == 1 && res.data.msg == '该手机号已经注册') {
+          self.$message({
+            message: "该手机号已经注册",
+            duration: 2000,
+            type: "warning"
+          });
+        } else if(res.data.code == 0) {
+          self.$message({
+            message: "注册成功，正在前往首页...",
+            duration: 2000,
+            type: "success"
+          });
+          this.$router.replace({ path: '/home'});
+        } else {
+          self.$message({
+            message: "系统异常",
+            duration: 2000,
+            type: "warning"
+          });
+        }
+      })
     }
   }
   
@@ -324,6 +437,7 @@ export default {
               align-items: center;
               justify-content: center;
               background-color: #f2f2f5;
+              position: relative;
               &:hover {
                 background-color: #cccccc;
               }

@@ -18,8 +18,8 @@
         @click="getcontent('art')"
       >文章</div>
       <div class="sousuo">
-        <input type="text" placeholder="搜搜你感兴趣的内容" />
-        <img src="../assets/icon/sousuo.png" alt />
+        <!-- <input type="text" placeholder="搜搜你感兴趣的内容" />
+        <img src="../assets/icon/sousuo.png" alt />-->
       </div>
     </header>
     <!-- 遮挡滑动后的内容 -->
@@ -30,36 +30,43 @@
       <div v-show="issearchingItem == 'post'">
         <div class="post" v-for="(item, index) in postlist" :key="index">
           <div class="detail-area">
-            <img class="avatar" :src="item.userinfo.user_avatar" alt="用户头像" />
+            <img class="avatar" :src="item.user_avatar" alt="用户头像" />
             <div class="detail-info">
               <div class="user-info-time">
-                <div class="user-name">{{item.userinfo.user_nickname}}</div>
+                <div class="user-name">{{item.user_nickname}}</div>
                 <div class="time" v-html="gettime(item.post_time)"></div>
-                <el-button class="unfollow" v-if="!item.isfollowed">关注TA</el-button>
-                <el-button class="follow" v-else>已关注</el-button>
+                <!-- 还需要判断是不是本人 -->
+                <el-button
+                  class="unfollow"
+                  v-if="!item.isfollow && $store.state.userInfo.user_id!=item.user_id"
+                >关注TA</el-button>
+                <el-button
+                  class="follow"
+                  v-if="item.isfollow && $store.state.userInfo.user_id!=item.user_id"
+                >已关注</el-button>
               </div>
               <div class="detail-body">
                 <div class="topiclist">
                   <span
                     class="topic"
-                    v-for="(topic, topicindex) in item.topic_list"
+                    v-for="(topic, topicindex) in item.topiclist"
                     :key="topicindex"
                   >#{{topic.topic_name}}</span>
                 </div>
-                <p class="text">{{item.post_conent}}</p>
+                <p class="text">{{item.post_content}}</p>
                 <div class="image-list" v-if="item.post_style == 'image'">
                   <el-image
-                    :preview-src-list="item.postimg"
+                    :preview-src-list="item.post_image"
                     lazy
-                    v-for="(image, imageindex) in item.postimg"
+                    v-for="(image, imageindex) in item.post_image"
                     fit="cover"
-                    :src="image"
+                    :src="image.image_id"
                     :key="imageindex"
                   ></el-image>
                 </div>
                 <div class="video-list" v-if="item.post_style == 'video'">
                   <video
-                    :src="item.post_video[0]"
+                    :src="item.post_video[0].video_id"
                     width="100%"
                     controls="controls"
                   >您的浏览器不支持 video 标签。</video>
@@ -69,23 +76,38 @@
           </div>
           <div class="operate">
             <div class="item">
-              <img v-if="true" src="../assets/icon/collection.png" alt />
-              <img v-else src="../assets/icon/collection-active.png" alt />
-              <span>{{calculatedata(item.collection_count)}}</span>
+              <img
+                @click.stop="collectionpost(item)"
+                v-if="!item.iscollection"
+                src="../assets/icon/collection.png"
+                alt
+              />
+              <img
+                @click.stop="uncollectionpost(item)"
+                v-else
+                src="../assets/icon/collection-active.png"
+                alt
+              />
+              <span>{{calculatedata(item.post_collections)}}</span>
             </div>
             <div class="item line">
               <!-- <img src="../assets/icon/comment.png" alt="">
               <span>20</span>-->
             </div>
             <div class="item">
-              <img v-if="true" src="../assets/icon/like.png" alt />
-              <img v-else src="../assets/icon/like-active.png" alt />
-              <span>{{calculatedata(item.likes_count)}}</span>
+              <img
+                @click.stop="likepost(item)"
+                v-if="!item.isliked"
+                src="../assets/icon/like.png"
+                alt
+              />
+              <img @click.stop="dislikepost(item)" v-else src="../assets/icon/like-active.png" alt />
+              <span>{{calculatedata(item.post_likes)}}</span>
             </div>
           </div>
           <el-collapse accordion>
             <el-collapse-item class="comment-area">
-              <template slot="title">展开评论({{calculatedata(item.reply_count)}})</template>
+              <template slot="title">展开评论({{calculatedata(item.post_comments)}})</template>
               <div class="post-comment">
                 <el-input
                   class="comment-input"
@@ -94,7 +116,7 @@
                   placeholder="和大家分享你的看法吧！"
                   v-model="commenttextarea"
                 ></el-input>
-                <el-button class="post-comment-button">发表</el-button>
+                <el-button @click.stop="comment(item)" class="post-comment-button">发表</el-button>
               </div>
               <div class="sort-order">
                 <div class="sort">
@@ -115,21 +137,21 @@
                 <div class="userinfo-comment">
                   <div class="user-nickname-like">
                     <span class="user-nickname">{{comment.user_nickname}}：</span>
-                    <img class="like" v-if="comment.isagreeed" src="../assets/icon/like.png" alt />
-                    <img class="like" v-else src="../assets/icon/like-active.png" alt />
+                    <!-- <img class="like" v-if="comment.isagreeed" src="../assets/icon/like.png" alt />
+                    <img class="like" v-else src="../assets/icon/like-active.png" alt />-->
                     <!-- 为0不显示 -->
-                    <span
+                    <!-- <span
                       class="agree-count"
                       v-if="comment.reply_agree_count"
-                    >{{comment.reply_agree_count}}</span>
+                    >{{comment.reply_agree_count}}</span>-->
                   </div>
                   <p>{{comment.comment_content}}</p>
                   <div class="comment-time">
-                    <span v-html="gettime(comment.post_reply_time)"></span>
-                    <span class="reply">回复</span>
+                    <span v-html="gettime(comment.reply_time)"></span>
+                    <!-- <span class="reply">回复</span> -->
                   </div>
                   <!-- 二级评论 -->
-                  <li
+                  <!-- <li
                     class="reply-user"
                     v-for="(rcomment,rindex) in comment.related_reply"
                     :key="rindex"
@@ -156,12 +178,11 @@
                       </div>
                       <p>{{rcomment.comment_content}}</p>
                       <div class="comment-time">
-                        <span v-html="gettime(comment.post_reply_time)"></span>
+                        <span v-html="gettime(comment.reply_time)"></span>
                         <span class="reply">回复</span>
                       </div>
                     </div>
-                  </li>
-                  <!-- </div> -->
+                  </li>-->
                 </div>
               </li>
             </el-collapse-item>
@@ -172,23 +193,23 @@
       <div v-show="issearchingItem == 'video'">
         <div class="video" v-for="(item, index) in postlist" :key="index">
           <div class="detail-area">
-            <img class="avatar" :src="item.userinfo.user_avatar" alt="用户头像" />
+            <img class="avatar" :src="item.user_avatar" alt="用户头像" />
             <div class="detail-info">
               <div class="user-info-time">
-                <div class="user-name">{{item.userinfo.user_nickname}}</div>
+                <div class="user-name">{{item.user_nickname}}</div>
                 <div class="time" v-html="gettime(item.post_time)"></div>
-                <el-button class="unfollow" v-if="!item.isfollowed">关注TA</el-button>
+                <el-button class="unfollow" v-if="!item.isfollow">关注TA</el-button>
                 <el-button class="follow" v-else>已关注</el-button>
               </div>
               <div class="detail-body">
                 <div class="topiclist">
                   <span
                     class="topic"
-                    v-for="(topic, topicindex) in item.topic_list"
+                    v-for="(topic, topicindex) in item.topiclist"
                     :key="topicindex"
                   >#{{topic.topic_name}}</span>
                 </div>
-                <p class="text">{{item.post_conent}}</p>
+                <p class="text">{{item.post_content}}</p>
                 <!-- <div class="image-list" v-if="item.post_style == 'image'">
                   <el-image 
                     :preview-src-list="srcList"
@@ -201,7 +222,7 @@
                 </div>-->
                 <div class="video-list" v-if="item.post_style == 'video'">
                   <video
-                    :src="item.post_video[0]"
+                    :src="item.post_video[0].video_id"
                     width="100%"
                     controls="controls"
                   >您的浏览器不支持 video 标签。</video>
@@ -211,23 +232,38 @@
           </div>
           <div class="operate">
             <div class="item">
-              <img v-if="true" src="../assets/icon/collection.png" alt />
-              <img v-else src="../assets/icon/collection-active.png" alt />
-              <span>{{calculatedata(item.collection_count)}}</span>
+              <img
+                @click.stop="collectionpost(item)"
+                v-if="!item.iscollection"
+                src="../assets/icon/collection.png"
+                alt
+              />
+              <img
+                @click.stop="uncollectionpost(item)"
+                v-else
+                src="../assets/icon/collection-active.png"
+                alt
+              />
+              <span>{{calculatedata(item.post_collections)}}</span>
             </div>
             <div class="item line">
               <!-- <img src="../assets/icon/comment.png" alt="">
               <span>20</span>-->
             </div>
             <div class="item">
-              <img v-if="true" src="../assets/icon/like.png" alt />
-              <img v-else src="../assets/icon/like-active.png" alt />
-              <span>{{calculatedata(item.likes_count)}}</span>
+              <img
+                @click.stop="likepost(item)"
+                v-if="!item.isliked"
+                src="../assets/icon/like.png"
+                alt
+              />
+              <img @click.stop="dislikepost(item)" v-else src="../assets/icon/like-active.png" alt />
+              <span>{{calculatedata(item.post_likes)}}</span>
             </div>
           </div>
           <el-collapse accordion>
             <el-collapse-item class="comment-area">
-              <template slot="title">展开评论({{calculatedata(item.reply_count)}})</template>
+              <template slot="title">展开评论({{calculatedata(item.post_comments)}})</template>
               <div class="post-comment">
                 <el-input
                   class="comment-input"
@@ -236,7 +272,7 @@
                   placeholder="和大家分享你的看法吧！"
                   v-model="commenttextarea"
                 ></el-input>
-                <el-button class="post-comment-button">发表</el-button>
+                <el-button class="post-comment-button" @click.stop="comment(item)">发表</el-button>
               </div>
               <div class="sort-order">
                 <div class="sort">
@@ -257,8 +293,8 @@
                 <div class="userinfo-comment">
                   <div class="user-nickname-like">
                     <span class="user-nickname">{{comment.user_nickname}}：</span>
-                    <img class="like" v-if="comment.isagreeed" src="../assets/icon/like.png" alt />
-                    <img class="like" v-else src="../assets/icon/like-active.png" alt />
+                    <!-- <img class="like" v-if="comment.isagreeed" src="../assets/icon/like.png" alt />
+                    <img class="like" v-else src="../assets/icon/like-active.png" alt />-->
                     <!-- 为0不显示 -->
                     <span
                       class="agree-count"
@@ -267,11 +303,11 @@
                   </div>
                   <p>{{comment.comment_content}}</p>
                   <div class="comment-time">
-                    <span v-html="gettime(comment.post_reply_time)"></span>
-                    <span class="reply">回复</span>
+                    <span v-html="gettime(comment.reply_time)"></span>
+                    <!-- <span class="reply">回复</span> -->
                   </div>
                   <!-- 二级评论 -->
-                  <li
+                  <!-- <li
                     class="reply-user"
                     v-for="(rcomment,rindex) in comment.related_reply"
                     :key="rindex"
@@ -298,12 +334,11 @@
                       </div>
                       <p>{{rcomment.comment_content}}</p>
                       <div class="comment-time">
-                        <span v-html="gettime(comment.post_reply_time)"></span>
+                        <span v-html="gettime(comment.reply_time)"></span>
                         <span class="reply">回复</span>
                       </div>
                     </div>
-                  </li>
-                  <!-- </div> -->
+                  </li>-->
                 </div>
               </li>
             </el-collapse-item>
@@ -319,8 +354,22 @@
 </template>
 <script>
 // @ is an alias to /src
-import { showformattime } from "../utils/index.js";
-import videotest from "../assets/videotest/QQ视频20181122231737.mp4";
+import { showformattime, getTime,uuid } from "../utils/index.js";
+import {
+  gethotpostlist,
+  gethotvideolist,
+  getnewlist,
+  getnewvideolist,
+  getfollowlist,
+  getfollowvideolist,
+  likepost,
+  dislikepost,
+  collectionpost,
+  uncollectionpost,
+  commentpost
+} from "../utils/api/post.js";
+
+// import videotest from "../assets/videotest/QQ视频20181122231737.mp4";
 export default {
   name: "CommunityContent",
   components: {
@@ -331,141 +380,137 @@ export default {
     return {
       commenttextarea: "", //评论内容
       postlist: [
-        {
-          post_id: "tiezi123456", //（文章id）
-          //多个话题标签
-          topic_list: [
-            {
-              topic_id: "topic123456", //（话题ID）
-              topic_name: "宠物猫" //（话题名称）
-            },
-            {
-              topic_id: "topic123456", //（话题ID）
-              topic_name: "宠物猫真可爱" //（话题名称）
-            }
-          ],
-          userinfo: {
-            user_id: "user18487315405",
-            user_nickname: "半途",
-            user_avatar: require("../assets/img/reg3.jpg")
-          },
-          post_style: "video", //（动态分类text/image/video）
-          user_grade: 100, //(用户等级0-1000)
-          isfollowed: false, //(是否关注)
-          post_conent: "猫仔陪伴的一天，开心", //（帖子内容）
-          postimg: [], //按顺序
-          post_video: [videotest], //（视频地址）
-          post_time: "1618654274090",
-          likes_count: 12, //（点赞数）
-          collection_count: 0, //（收藏数）
-          reply_count: 50, //（评论数）
-          isliked: false,
-          iscollection: false, // （是否收藏了）
-          comments_sort_by: "hot",
-          comments: [
-            //评论数组
-            {
-              //一级评论
-              post_reply_id: "comments111",
-              comment_content: "真可爱",
-              user_id: "",
-              user_nickname: "半途",
-              user_avatar: require("../assets/img/reg3.jpg"),
-              post_reply_time: "1618654274090",
-              reply_agree_count: 0,
-              isagreeed: Boolean,
-              //二级评论
-              related_reply: [
-                {
-                  post_reply_id: "111",
-                  author: {
-                    user_id: "",
-                    user_nickname: "乖乖李",
-                    user_avatar: require("../assets/img/reg3.jpg")
-                  },
-                  reply_to_author: {
-                    user_id: "",
-                    user_nickname: "半途",
-                    user_avatar: require("../assets/img/reg3.jpg")
-                  },
-                  comment_content: "真可爱",
-                  post_reply_time: "",
-                  reply_agree_count: 111,
-                  isagreeed: Boolean
-                }
-              ]
-            },
-            {
-              //一级评论
-              post_reply_id: "comments111",
-              comment_content: "真可爱",
-              user_id: "",
-              user_nickname: "半途",
-              user_avatar: require("../assets/img/reg3.jpg"),
-              post_reply_time: "1618654274090",
-              reply_agree_count: 0,
-              isagreeed: Boolean,
-              //二级评论
-              related_reply: [
-                {
-                  post_reply_id: "111",
-                  author: {
-                    user_id: "",
-                    user_nickname: "乖乖李",
-                    user_avatar: require("../assets/img/reg3.jpg")
-                  },
-                  reply_to_author: {
-                    user_id: "",
-                    user_nickname: "半途",
-                    user_avatar: require("../assets/img/reg3.jpg")
-                  },
-                  comment_content: "真可爱",
-                  post_reply_time: "",
-                  reply_agree_count: 111,
-                  isagreeed: Boolean
-                }
-              ]
-            }
-          ]
-        },
-        {
-          post_id: "tiezi123456", //（文章id）
-          //多个话题标签
-          topic_list: [
-            {
-              topic_id: "topic123456", //（话题ID）
-              topic_name: "宠物猫" //（话题名称）
-            },
-            {
-              topic_id: "topic123456", //（话题ID）
-              topic_name: "宠物猫真可爱" //（话题名称）
-            }
-          ],
-          userinfo: {
-            user_id: "user18487315405",
-            user_nickname: "半途",
-            user_avatar: require("../assets/img/reg3.jpg")
-          },
-          post_style: "video", //（动态分类text/image/video）
-          user_grade: 100, //(用户等级0-1000)
-          isfollowed: true, //(是否关注)
-          post_conent: "猫仔陪伴的一天，开心", //（帖子内容）
-          postimg: [], //按顺序
-          post_video: [videotest], //（视频地址）
-          post_time: "1618654274090",
-          likes_count: 11111, //（点赞数）
-          collection_count: 20, //（收藏数）
-          reply_count: 100, //（评论数）
-          isliked: false,
-          iscollection: true, // （是否收藏了）
-          comments: [] //评论数组
-        }
+        // {
+        //   post_id: "tiezi123456", //（文章id）
+        //   //多个话题标签
+        //   topic_list: [
+        //     {
+        //       topic_id: "topic123456", //（话题ID）
+        //       topic_name: "宠物猫" //（话题名称）
+        //     },
+        //     {
+        //       topic_id: "topic123456", //（话题ID）
+        //       topic_name: "宠物猫真可爱" //（话题名称）
+        //     }
+        //   ],
+        //   user_id: "user18487315405",
+        //   user_nickname: "半途",
+        //   user_avatar: require("../assets/img/reg3.jpg"),
+        //   post_style: "video", //（动态分类text/image/video）
+        //   user_grade: 100, //(用户等级0-1000)
+        //   isfollow: false, //(是否关注)
+        //   post_content: "猫仔陪伴的一天，开心", //（帖子内容）
+        //   post_image: [], //按顺序
+        //   post_video: [{ video_id: videotest }], //（视频地址）
+        //   post_time: "1618654274090",
+        //   post_likes: 12, //（点赞数）
+        //   post_collections: 0, //（收藏数）
+        //   post_comments: 50, //（评论数）
+        //   isliked: false,
+        //   iscollection: false, // （是否收藏了）
+        //   comments_sort_by: "hot",
+        //   comments: [
+        //     //评论数组
+        //     {
+        //       //一级评论
+        //       reply_id: "comments111",
+        //       comment_content: "真可爱",
+        //       user_id: "",
+        //       user_nickname: "半途",
+        //       user_avatar: require("../assets/img/reg3.jpg"),
+        //       reply_time: "1618654274090",
+        //       reply_agree_count: 0,
+        //       isagreeed: Boolean,
+        //       //二级评论
+        //       related_reply: [
+        //         {
+        //           reply_id: "111",
+        //           author: {
+        //             user_id: "",
+        //             user_nickname: "乖乖李",
+        //             user_avatar: require("../assets/img/reg3.jpg")
+        //           },
+        //           reply_to_author: {
+        //             user_id: "",
+        //             user_nickname: "半途",
+        //             user_avatar: require("../assets/img/reg3.jpg")
+        //           },
+        //           comment_content: "真可爱",
+        //           reply_time: "",
+        //           reply_agree_count: 111,
+        //           isagreeed: Boolean
+        //         }
+        //       ]
+        //     },
+        //     {
+        //       //一级评论
+        //       reply_id: "comments111",
+        //       comment_content: "真可爱",
+        //       user_id: "",
+        //       user_nickname: "半途",
+        //       user_avatar: require("../assets/img/reg3.jpg"),
+        //       reply_time: "1618654274090",
+        //       reply_agree_count: 0,
+        //       isagreeed: Boolean,
+        //       //二级评论
+        //       related_reply: [
+        //         {
+        //           reply_id: "111",
+        //           author: {
+        //             user_id: "",
+        //             user_nickname: "乖乖李",
+        //             user_avatar: require("../assets/img/reg3.jpg")
+        //           },
+        //           reply_to_author: {
+        //             user_id: "",
+        //             user_nickname: "半途",
+        //             user_avatar: require("../assets/img/reg3.jpg")
+        //           },
+        //           comment_content: "真可爱",
+        //           reply_time: "",
+        //           reply_agree_count: 111,
+        //           isagreeed: Boolean
+        //         }
+        //       ]
+        //     }
+        //   ]
+        // },
+        // {
+        //   post_id: "tiezi123456", //（文章id）
+        //   //多个话题标签
+        //   topic_list: [
+        //     {
+        //       topic_id: "topic123456", //（话题ID）
+        //       topic_name: "宠物猫" //（话题名称）
+        //     },
+        //     {
+        //       topic_id: "topic123456", //（话题ID）
+        //       topic_name: "宠物猫真可爱" //（话题名称）
+        //     }
+        //   ],
+        //   user_id: "user18487315405",
+        //   user_nickname: "半途",
+        //   user_avatar: require("../assets/img/reg3.jpg"),
+        //   post_style: "video", //（动态分类text/image/video）
+        //   user_grade: 100, //(用户等级0-1000)
+        //   isfollow: true, //(是否关注)
+        //   post_content: "猫仔陪伴的一天，开心", //（帖子内容）
+        //   post_image: [], //按顺序
+        //   post_video: [{ video_id: videotest }], //（视频地址）
+        //   post_time: "1618654274090",
+        //   post_likes: 11111, //（点赞数）
+        //   post_collections: 20, //（收藏数）
+        //   post_comments: 100, //（评论数）
+        //   isliked: false,
+        //   iscollection: true, // （是否收藏了）
+        //   comments: [] //评论数组
+        // }
       ]
     };
   },
   methods: {
     //导航栏切换
-    getcontent(i) {
+    async getcontent(i) {
       let self = this;
       if (self.issearchingItem == i) {
         return;
@@ -481,9 +526,86 @@ export default {
         //获取全部
       } else if (i == "post") {
         //获取动态
-        // self.postlist = []
+        let params = {
+          user_id: this.$store.state.userInfo.user_id
+        };
+        if (this.contentType == "hot") {
+          let res = await gethotpostlist(params);
+          if (res.data.code == 0) {
+            this.postlist = res.data.data;
+          } else {
+            this.$message({
+              message: "抱歉，系统异常！",
+              duration: 2000,
+              type: "error"
+            });
+          }
+        }
+        if (this.contentType == "newPost") {
+          let res = await getnewlist(params);
+          if (res.data.code == 0) {
+            this.postlist = res.data.data;
+          } else {
+            this.$message({
+              message: "抱歉，系统异常！",
+              duration: 2000,
+              type: "error"
+            });
+          }
+        }
+        if (this.contentType == "myFollows") {
+          let res = await getfollowlist(params);
+          if (res.data.code == 0) {
+            this.postlist = res.data.data;
+          } else {
+            this.$message({
+              message: "抱歉，系统异常！",
+              duration: 2000,
+              type: "error"
+            });
+          }
+        }
       } else if (i == "video") {
         //获取视频
+        let params = {
+          user_id: this.$store.state.userInfo.user_id
+        };
+        if (this.contentType == "hot") {
+          let res = await gethotvideolist(params);
+          if (res.data.code == 0) {
+            this.postlist = res.data.data;
+          } else {
+            this.$message({
+              message: "抱歉，系统异常！",
+              duration: 2000,
+              type: "error"
+            });
+          }
+        }
+        if (this.contentType == "newPost") {
+          let res = await getnewvideolist(params);
+          if (res.data.code == 0) {
+            this.postlist = res.data.data;
+          } else {
+            this.$message({
+              message: "抱歉，系统异常！",
+              duration: 2000,
+              type: "error"
+            });
+          }
+        }
+        if (this.contentType == "myFollows") {
+          let res = await getfollowvideolist(params);
+          if (res.data.code == 0) {
+            this.postlist = res.data.data;
+          } else {
+            this.$message({
+              message: "抱歉，系统异常！",
+              duration: 2000,
+              type: "error"
+            });
+          }
+        }
       } else if (i == "art") {
         //获取文章
       }
@@ -500,6 +622,166 @@ export default {
       } else {
         return i;
       }
+    },
+    //点赞
+    async likepost(item) {
+      if(!this.$store.state.userInfo.user_id){
+        this.$message({
+          message: "请先登录！",
+          duration: 2000,
+          type: "error"
+        });
+        return
+      }
+      let data = {
+        post_id: item.post_id,
+        user_id: this.$store.state.userInfo.user_id,
+        operate_time: getTime()
+      };
+      let res = await likepost(data)
+      if(res.data.code == 0) {
+        let count = item.post_likes + 1;
+        this.$set(item, "isliked", 1);
+        this.$set(item, "post_likes", count);
+      }else {
+        this.$message({
+          message: "抱歉，系统异常！",
+          duration: 2000,
+          type: "error"
+        });
+      }
+    },
+    //取消点赞
+    async dislikepost(item) {
+      if(!this.$store.state.userInfo.user_id){
+        this.$message({
+          message: "请先登录！",
+          duration: 2000,
+          type: "error"
+        });
+        return
+      }
+      let data = {
+        post_id: item.post_id,
+        user_id: this.$store.state.userInfo.user_id
+      };
+      let res = await dislikepost(data)
+      if(res.data.code == 0) {
+        this.$set(item, "isliked", 0);
+        let count = item.post_likes - 1;
+        this.$set(item, "post_likes", count);
+      }else {
+        this.$message({
+          message: "抱歉，系统异常！",
+          duration: 2000,
+          type: "error"
+        });
+      }
+    },
+    //收藏
+    async collectionpost(item) {
+      if(!this.$store.state.userInfo.user_id){
+        this.$message({
+          message: "请先登录！",
+          duration: 2000,
+          type: "error"
+        });
+        return
+      }
+      let data = {
+        post_id: item.post_id,
+        user_id: this.$store.state.userInfo.user_id,
+        operate_time: getTime()
+      };
+      let res = await collectionpost(data)
+       if(res.data.code == 0) {
+        this.$set(item, "iscollection", 1);
+        let count = item.post_collections + 1;
+        this.$set(item, "post_collections", count);
+      }else {
+        this.$message({
+          message: "抱歉，系统异常！",
+          duration: 2000,
+          type: "error"
+        });
+      }
+    },
+    //取消收藏
+    async uncollectionpost(item) {
+      if(!this.$store.state.userInfo.user_id){
+        this.$message({
+          message: "请先登录！",
+          duration: 2000,
+          type: "error"
+        });
+        return
+      }
+      let data = {
+        post_id: item.post_id,
+        user_id: this.$store.state.userInfo.user_id
+      };
+      let res = await uncollectionpost(data)
+      if(res.data.code == 0) {
+        this.$set(item, "iscollection", 0);
+        let count = item.post_collections - 1;
+        this.$set(item, "post_collections", count);
+      }else {
+        this.$message({
+          message: "抱歉，系统异常！",
+          duration: 2000,
+          type: "error"
+        });
+      }
+    },
+    async comment(item){
+      if(!this.$store.state.userInfo.user_id){
+        this.$message({
+          message: "请先登录！",
+          duration: 2000,
+          type: "error"
+        });
+        return
+      }
+      if(!this.commenttextarea){
+        this.$message({
+          message: "评论内容不能为空！",
+          duration: 2000,
+          type: "warning"
+        });
+        return 
+      }
+      let data = {
+        reply_id:uuid("post_comment"),
+        post_id: item.post_id,
+        user_id: this.$store.state.userInfo.user_id,
+        comment_content:this.commenttextarea,
+        reply_time:getTime()
+      };
+      await commentpost(data).then(res=>{
+        if(res.data.code == 0){
+          let list = item.comments
+          let obj = {
+            reply_id: data.reply_id,
+            comment_content: data.comment_content,
+            user_id: this.$store.state.userInfo.user_id,
+            user_nickname: this.$store.state.userInfo.user_nickname,
+            user_avatar: this.$store.state.userInfo.user_avatar,
+            reply_time: data.reply_time,
+          }
+          console.log(list)
+          list.push(obj)
+          item.comments = list
+          let count = item.post_comments + 1;
+          this.$set(item, "post_comments", count);
+          console.log(item)
+          this.commenttextarea = ''
+          this.$message({
+            message: "评论成功！",
+            duration: 2000,
+            type: "success"
+          });
+        }
+      })
     }
   },
   computed: {
@@ -513,10 +795,92 @@ export default {
       // }
     }
   },
-  mounted() {
-    console.log(this.$route.params.type);
-    console.log(this.contentType);
-    //获取不同类型的对应列表
+  async mounted() {
+    if (localStorage.userInfo) {
+      let userInfo = JSON.parse(localStorage.userInfo);
+      this.$store.dispatch("getUserInfo", userInfo);
+    }
+    if (this.$route.params.type == "post") {
+      let params = {
+        user_id: this.$store.state.userInfo.user_id
+      };
+      if (this.contentType == "hot") {
+        let res = await gethotpostlist(params);
+        if (res.data.code == 0) {
+          this.postlist = res.data.data;
+        } else {
+          this.$message({
+            message: "抱歉，系统异常！",
+            duration: 2000,
+            type: "error"
+          });
+        }
+      }
+      if (this.contentType == "newPost") {
+        let res = await getnewlist(params);
+        if (res.data.code == 0) {
+          this.postlist = res.data.data;
+        } else {
+          this.$message({
+            message: "抱歉，系统异常！",
+            duration: 2000,
+            type: "error"
+          });
+        }
+      }
+      if (this.contentType == "myFollows") {
+        let res = await getfollowlist(params);
+        if (res.data.code == 0) {
+          this.postlist = res.data.data;
+        } else {
+          this.$message({
+            message: "抱歉，系统异常！",
+            duration: 2000,
+            type: "error"
+          });
+        }
+      }
+    } else if (this.$route.params.type == "video") {
+      let params = {
+        user_id: this.$store.state.userInfo.user_id
+      };
+      if (this.contentType == "hot") {
+        let res = await gethotvideolist(params);
+        if (res.data.code == 0) {
+          this.postlist = res.data.data;
+        } else {
+          this.$message({
+            message: "抱歉，系统异常！",
+            duration: 2000,
+            type: "error"
+          });
+        }
+      }
+      if (this.contentType == "newPost") {
+        let res = await getnewvideolist(params);
+        if (res.data.code == 0) {
+          this.postlist = res.data.data;
+        } else {
+          this.$message({
+            message: "抱歉，系统异常！",
+            duration: 2000,
+            type: "error"
+          });
+        }
+      }
+      if (this.contentType == "myFollows") {
+        let res = await getfollowvideolist(params);
+        if (res.data.code == 0) {
+          this.postlist = res.data.data;
+        } else {
+          this.$message({
+            message: "抱歉，系统异常！",
+            duration: 2000,
+            type: "error"
+          });
+        }
+      }
+    }
   }
 };
 </script>
@@ -640,7 +1004,7 @@ export default {
               right: 0;
               top: 50%;
               transform: translateY(-50%);
-              color:#a5a5a5;
+              color: #a5a5a5;
               cursor: pointer;
               border: 1px solid rgb(238, 236, 236);
               padding: 5px 8px;

@@ -12,7 +12,8 @@
               <span
                 class="RichText ztext CopyrightRichText-richText"
                 itemprop="articleBody"
-              >{{question.question_describe}}</span>
+              >{{question.question_description}}</span>
+              <img style="display:block;" v-if="!question.iscollapsed && question.question_cover" height="200px" :src="question.question_cover" alt="">
               <button
                 type="button"
                 class="Button ContentItem-more Button--plain"
@@ -30,22 +31,22 @@
               <el-button
                 class="el-follow"
                 icon="el-icon-caret-top"
-                v-if="question.isfollowed"
-                @click="unfollow"
+                v-if="question.isfollow"
+                @click="unfollowquestion(question)"
               >您已关注</el-button>
               <el-button
                 class="el-unfollow"
                 icon="el-icon-caret-top"
                 v-else
                 plain
-                @click="follow"
+                @click="followquestion(question)"
               >关注问题</el-button>
             </div>
             <el-button class="Button-answer" icon="el-icon-edit">我来回答</el-button>
-            <div class="answer">
+            <!-- <div class="answer">
               <i class="el-icon-chat-line-round" style="font-size:15px"></i>
               <span>{{calculate(question.answer_count)}}条回答</span>
-            </div>
+            </div> -->
             <div class="uncollapsed" v-if="!question.iscollapsed" @click.stop="shouqi()">
               收起
               <i class="el-icon-arrow-up"></i>
@@ -58,26 +59,26 @@
         </div>
       </div>
       <div class="answer-list">
-        <div class="sort-order" v-if="question.answerlist.length">
-          <span>共{{question.answerlist.length}}条回答</span>
+        <div class="sort-order" v-if="(question.answer|| []).length">
+          <span>共{{(question.answer|| []).length}}条回答</span>
           <div class="sort">
             <img class="sort-icon" src="../assets/icon/sort.png" alt="排序" />
             <span class="sort-text">切换为{{question.answer_sort_by == 'hot'? '时间':'热度'}}排序</span>
           </div>
         </div>
-        <div class="answer-item" v-if="question.answerlist.length">
-          <li class="list-item" v-for="(item,itemindex) in question.answerlist" :key="itemindex">
+        <div class="answer-item" v-if="(question.answer|| []).length">
+          <li class="list-item" v-for="(item,itemindex) in question.answer" :key="itemindex">
             <div class="answer-area">
               <img
                 class="user-avatar"
-                :src="item.answser_author.user_avatar"
+                :src="item.user_avatar"
                 alt="用户头像"
-                v-if="!item.isanonymous"
+                v-if="!item.is_anonymous"
               />
               <img class="user-avatar" src="../assets/icon/anonymous.png" alt="匿名" v-else />
               <div class="content">
                 <div class="time-info">
-                  <div class="user-name">{{item.answser_author.user_nickname}}</div>
+                  <div class="user-name">{{item.user_nickname}}</div>
                   <div class="post-time" v-html="gettime(item.post_time)"></div>
                 </div>
                 <div class="answer-count">{{item.answer_content}}</div>
@@ -91,20 +92,20 @@
                       <el-button
                         class="el-agree"
                         icon="el-icon-caret-top"
-                        v-if="item.isagreed"
-                        @click.stop="disagreedanswer(item)"
-                      >赞同 {{calculate(item.agreecount)}}</el-button>
+                        v-if="item.isagree"
+                        @click.stop="disagreeanswer(item)"
+                      >赞同 {{calculate(item.agree_count)}}</el-button>
                       <el-button
-                        class="el-disagreed"
+                        class="el-disagree"
                         icon="el-icon-caret-top"
                         v-else
                         @click.stop="agreeanswer(item)"
                         plain
-                      >赞同 {{calculate(item.agreecount)}}</el-button>
+                      >赞同 {{calculate(item.agree_count)}}</el-button>
                     </div>
                     <div class="answer">
                       <i class="el-icon-chat-line-round" style="font-size:15px"></i>
-                      <span>{{calculate(item.commentcount)}}条评论</span>
+                      <span>{{calculate(item.comment_count)}}条评论</span>
                     </div>
                     <div class="uncollapsed" v-if="!item.iscollapsed" @click.stop="shouqi(item)">
                       收起
@@ -136,26 +137,26 @@
                     <div class="userinfo-comment">
                       <div class="user-nickname-like">
                         <span class="user-nickname">{{comment.user_nickname}}：</span>
-                        <img
+                        <!-- <img
                           class="like"
-                          v-if="comment.isagreeded"
+                          v-if="comment.isagreeed"
                           src="../assets/icon/like.png"
                           alt
                         />
-                        <img class="like" v-else src="../assets/icon/like-active.png" alt />
+                        <img class="like" v-else src="../assets/icon/like-active.png" alt /> -->
                         <!-- 为0不显示 -->
-                        <span
+                        <!-- <span
                           class="agree-count"
                           v-if="comment.reply_agree_count"
-                        >{{comment.reply_agree_count}}</span>
+                        >{{comment.reply_agree_count}}</span> -->
                       </div>
-                      <p>{{comment.comment_content}}</p>
+                      <p>{{comment.reply_content}}</p>
                       <div class="comment-time">
                         <span v-html="gettime(comment.reply_time)"></span>
-                        <span class="reply">回复</span>
+                        <!-- <span class="reply">回复</span> -->
                       </div>
                       <!-- 二级评论 -->
-                      <li
+                      <!-- <li
                         class="reply-user"
                         v-for="(rcomment,rindex) in comment.related_reply"
                         :key="rindex"
@@ -176,7 +177,7 @@
                             </span>
                             <img
                               class="like"
-                              v-if="rcomment.isagreeded"
+                              v-if="rcomment.isagreeed"
                               src="../assets/icon/like.png"
                               alt
                             />
@@ -186,14 +187,13 @@
                               v-if="rcomment.reply_agree_count"
                             >{{rcomment.reply_agree_count}}</span>
                           </div>
-                          <p>{{rcomment.comment_content}}</p>
+                          <p>{{rcomment.reply_content}}</p>
                           <div class="comment-time">
                             <span>{{gettime(comment.reply_time)}}</span>
                             <span class="reply">回复</span>
                           </div>
                         </div>
-                      </li>
-                      <!-- </div> -->
+                      </li> -->
                     </div>
                   </li>
                 </div>
@@ -201,14 +201,15 @@
             </el-collapse>
           </li>
         </div>
-        <NoData v-else />
+        <NoData v-else text="暂无回答"/>
       </div>
     </div>
   </div>
 </template>
 <script>
 // @ is an alias to /src
-import { showformattime } from "../utils/index.js";
+import { showformattime,getTime } from "../utils/index.js";
+import { getdetails,browsequestion,followquestion,unfollowquestion } from "../utils/api/question.js";
 import NoData from "../components/NoData"
 export default {
   name: "Question",
@@ -219,100 +220,98 @@ export default {
     return {
       commenttextarea: "",
       question: {
-        question_id: "1111",
-        question_title: "如何给猫洗澡?",
-        question_describe:
-          "哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或",
-        question_hot: 222, // 热度，浏览次数
-        answer_count: 2,
-        follow_count: 0,
-        post_time: "1619346234369",
-        isfollowed: false,
-        isanonymous: true,
-        imgcover: "", //问题配图一张
-        iscollapsed: true, //手动添加，折叠
-        answer_sort_by: "hot",
-        answerlist: [
-          {
-            answer_id: "0",
-            answser_author: {
-              user_nickname: "匿名用户",
-              user_avatar: require("../assets/img/reg6.jpg")
-            },
-            isanonymous: false, //是否匿名回答
-            post_time: "1618654274090",
-            answer_content: "我不知道",
-            agreecount: 111,
-            isagreed: false,
-            commentcount: 22,
-            iscollapsed: true, //获取数据后手动添加默认折叠
-            comments: [
-              //评论数组
-              {
-                //一级评论
-                answer_reply_id: "comments111",
-                comment_content: "真可爱",
-                user_id: "", //评论者
-                user_nickname: "半途",
-                user_avatar: require("../assets/img/reg3.jpg"),
-                reply_time: "1618654274090",
-                reply_agree_count: 0,
-                isagreeded: Boolean,
-                //二级评论
-                related_reply: [
-                  {
-                    answer_reply_id: "111",
-                    author: {
-                      user_id: "",
-                      user_nickname: "乖乖李",
-                      user_avatar: require("../assets/img/reg3.jpg")
-                    },
-                    reply_to_author: {
-                      user_id: "111",
-                      user_nickname: "半途",
-                      user_avatar: require("../assets/img/reg3.jpg")
-                    },
-                    comment_content: "真可爱",
-                    reply_time: "",
-                    reply_agree_count: 111,
-                    isagreed: Boolean
-                  }
-                ]
-              },
-              {
-                //一级评论
-                answer_reply_id: "comments111",
-                comment_content: "真可爱",
-                user_id: "",
-                user_nickname: "半途",
-                user_avatar: require("../assets/img/reg3.jpg"),
-                reply_time: "1618654274090",
-                reply_agree_count: 0,
-                isagreeded: Boolean,
-                //二级评论
-                related_reply: [
-                  {
-                    answer_reply_id: "111",
-                    author: {
-                      user_id: "",
-                      user_nickname: "乖乖李",
-                      user_avatar: require("../assets/img/reg3.jpg")
-                    },
-                    reply_to_author: {
-                      user_id: "",
-                      user_nickname: "半途",
-                      user_avatar: require("../assets/img/reg3.jpg")
-                    },
-                    comment_content: "真可爱",
-                    reply_time: "",
-                    reply_agree_count: 111,
-                    isagreeded: Boolean
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+        // question_id: "1111",
+        // question_title: "如何给猫洗澡?",
+        // question_description:
+        //   "哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或",
+        // question_hot: 222, // 热度，浏览次数
+        // answer_count: 2,
+        // follow_count: 0,
+        // post_time: "1619346234369",
+        // isfollow: false,
+        // is_anonymous: true,
+        // question_cover: "", //问题配图一张
+        // iscollapsed: true, //手动添加，折叠
+        // answer_sort_by: "hot",
+        // answer: [
+        //   {
+        //     answer_id: "0",
+        //     user_nickname: "匿名用户",
+        //     user_avatar: require("../assets/img/reg6.jpg"),
+        //     is_anonymous: false, //是否匿名回答
+        //     post_time: "1618654274090",
+        //     answer_content: "我不知道",
+        //     agree_count: 111,
+        //     isagree: false,
+        //     comment_count: 22,
+        //     iscollapsed: true, //获取数据后手动添加默认折叠
+        //     comments: [
+        //       //评论数组
+        //       {
+        //         //一级评论
+        //         answer_reply_id: "comments111",
+        //         reply_content: "真可爱",
+        //         user_id: "", //评论者
+        //         user_nickname: "半途",
+        //         user_avatar: require("../assets/img/reg3.jpg"),
+        //         reply_time: "1618654274090",
+        //         reply_agree_count: 0,
+        //         isagreeed: Boolean,
+        //         //二级评论
+        //         related_reply: [
+        //           {
+        //             answer_reply_id: "111",
+        //             author: {
+        //               user_id: "",
+        //               user_nickname: "乖乖李",
+        //               user_avatar: require("../assets/img/reg3.jpg")
+        //             },
+        //             reply_to_author: {
+        //               user_id: "111",
+        //               user_nickname: "半途",
+        //               user_avatar: require("../assets/img/reg3.jpg")
+        //             },
+        //             reply_content: "真可爱",
+        //             reply_time: "",
+        //             reply_agree_count: 111,
+        //             isagree: Boolean
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         //一级评论
+        //         answer_reply_id: "comments111",
+        //         reply_content: "真可爱",
+        //         user_id: "",
+        //         user_nickname: "半途",
+        //         user_avatar: require("../assets/img/reg3.jpg"),
+        //         reply_time: "1618654274090",
+        //         reply_agree_count: 0,
+        //         isagreeed: Boolean,
+        //         //二级评论
+        //         related_reply: [
+        //           {
+        //             answer_reply_id: "111",
+        //             author: {
+        //               user_id: "",
+        //               user_nickname: "乖乖李",
+        //               user_avatar: require("../assets/img/reg3.jpg")
+        //             },
+        //             reply_to_author: {
+        //               user_id: "",
+        //               user_nickname: "半途",
+        //               user_avatar: require("../assets/img/reg3.jpg")
+        //             },
+        //             reply_content: "真可爱",
+        //             reply_time: "",
+        //             reply_agree_count: 111,
+        //             isagreeed: Boolean
+        //           }
+        //         ]
+        //       }
+        //     ]
+        //   }
+        // ]
       }
     };
   },
@@ -348,33 +347,94 @@ export default {
         this.$set(this.question, "iscollapsed", true);
       }
     },
-    //关注
-    follow() {
-      this.$set(this.question, "isfollowed", true);
+    async followquestion(item){
+      let data= {
+        question_id:item.question_id,
+        user_id:this.$store.state.userInfo.user_id,
+        follow_time:getTime()
+      }
+      console.log(data)
+      let res= await followquestion(data)
+      if(res.data.code == 0) {
+        this.$set(item, "isfollow", 1);
+        if(item.follow_count!==undefined){
+          let count = item.follow_count + 1;
+          this.$set(item, "follow_count", count);
+        }
+      }else {
+        this.$message({
+          message: "抱歉，系统异常！",
+          duration: 2000,
+          type: "error"
+        });
+      }
     },
-    //关注
-    unfollow() {
-      this.$set(this.question, "isfollowed", false);
+    async unfollowquestion(item){
+      let data= {
+        question_id:item.question_id,
+        user_id:this.$store.state.userInfo.user_id,
+        follow_time:getTime()
+      }
+      let res= await unfollowquestion(data)
+      if(res.data.code == 0) {
+        this.$set(item, "isfollow", 0);
+        if(item.follow_count!==undefined){
+          let count = item.follow_count - 1;
+          this.$set(item, "follow_count", count);
+        }
+      }else {
+        this.$message({
+          message: "抱歉，系统异常！",
+          duration: 2000,
+          type: "error"
+        });
+      }
     },
     //赞同
     agreeanswer(item) {
-      console.log(item.isagreed);
-      if (!item.isagreed) {
-        this.$set(item, "isagreed", true);
+      console.log(item.isagree);
+      if (!item.isagree) {
+        this.$set(item, "isagree", true);
       }
-      console.log(item.isagreed);
+      console.log(item.isagree);
     },
     //取消赞同
-    disagreedanswer(item) {
-      console.log(item.isagreed);
-      if (item.isagreed) {
-        this.$set(item, "isagreed", false);
+    disagreeanswer(item) {
+      console.log(item.isagree);
+      if (item.isagree) {
+        this.$set(item, "isagree", false);
       }
-      console.log(item.isagreed);
+      console.log(item.isagree);
     },
   },
-  mounted() {
-    console.log(this.$route.query);
+  async mounted() {
+    if (localStorage.userInfo) {
+      let userInfo = JSON.parse(localStorage.userInfo);
+      this.$store.dispatch("getUserInfo", userInfo);
+    }
+    let params = {
+      user_id:this.$store.state.userInfo.user_id,
+      question_id:this.$route.query.question_id
+    }
+    console.log(params)
+    let res = await getdetails(params)
+    if(res.data.code == 0) {
+      this.question = res.data.data
+      this.$set(this.question, "iscollapsed", true);
+    }else {
+      this.$message({
+        message: "抱歉，系统异常！",
+        duration: 2000,
+        type: "error"
+      });
+    }
+    //浏览，游客不计数
+    if(this.$store.state.userInfo.user_id){
+      let data = {
+        question_id:this.$route.query.question_id
+      }
+      browsequestion(data)
+    }
   }
 };
 </script>
@@ -417,13 +477,14 @@ export default {
           line-height: 1.67;
           margin-top: 5px;
           .RichContent-inner {
-            max-height: 80px;
+            // max-height: 80px;
             word-break: break-all;
             text-overflow: ellipsis;
             display: -webkit-Box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            margin: 5px 0 10px 0;
             .ztext {
               word-break: break-word;
               line-height: 1.6;
@@ -503,6 +564,7 @@ export default {
       }
       .data-area {
         flex: 1;
+        height: 114px;
         margin-left: 20px;
         display: flex;
         flex-direction: column;
@@ -597,7 +659,7 @@ export default {
                 color: #fff;
                 background-color: #ffda5a !important;
               }
-              .el-disagreed {
+              .el-disagree {
                 // padding: 7px 8px !important;
                 // color: #409eff;
                 // background-color: #ecf5ff !important;

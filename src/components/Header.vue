@@ -47,13 +47,14 @@
         </div>
         <div class="NewMessage">消息</div>
         <div class="AppHeader-userInfo">
-          <div v-show="!showavatar" class="sign">
-            <span @click="$store.commit('changestatus', false)">登录</span> /
-            <span>
+          <div class="sign" style="display: flex;align-items: center;">
+            <span v-show="!showavatar" @click="$store.commit('changestatus', false)">登录/</span>
+            <span v-show="!showavatar">
               <router-link class="reg" to="/reg">注册</router-link>
             </span>
+            <span v-show="showavatar" @click="exit">退出登录</span>
+            <img v-show="showavatar" class="User-avatar" :src="showavatar" alt />
           </div>
-          <img v-show="showavatar" class="User-avatar" src="../assets/logo.png" alt />
         </div>
       </div>
     </header>
@@ -72,7 +73,7 @@ export default {
   data() {
     return {
       inputfocus: false, //输入框聚焦时样式
-      showavatar: false,
+      // showavatar: false,
       issearching: false, //控制搜索时搜索icon样式
       searchtext: "",
       navlist: [
@@ -103,6 +104,9 @@ export default {
     //是否关闭登录弹窗
     iscloseloginPopup() {
       return this.$store.state.closeLoginPopup;
+    },
+    showavatar() {
+      return this.$store.state.userInfo.user_avatar
     }
   },
   methods: {
@@ -111,7 +115,6 @@ export default {
       let self = this;
       self.inputfocus = false;
       self.issearching = false;
-      console.log(self.$route.query.topicid);
       //不为空才搜索
       if (self.searchtext) {
         //其它页面进入搜索页（非话题跳转）
@@ -147,6 +150,21 @@ export default {
       } else {
         this.$router.replace(i.path);
       }
+    },
+    // 退出登录
+    exit() {
+      this.$confirm("确定退出登录?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        this.$store.state.userInfo = {};
+        localStorage.removeItem("userInfo");
+        this.$message({
+          type: "success",
+          message: "退出登录!"
+        });
+      });
     }
   },
   mounted() {}
@@ -360,6 +378,7 @@ export default {
         }
       }
       .User-avatar {
+        margin-left: 10px;
         height: 30px;
         width: 30px;
         object-fit: cover;

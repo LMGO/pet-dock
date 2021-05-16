@@ -57,25 +57,60 @@ export function showformattime(i) {
     }
 }
 // UUID
-export const uuid = () => {
+export const uuid = (type) => {
     var s = [];
     var hexDigits = "0123456789abcdef";
-    for (var i = 0; i < 36; i++) {
+    for (var i = 0; i < 15; i++) {
       s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
     }
-    s[14] = "4"; // bits 12-15 of the time_hi_and_version field to 0010
-    s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
-    s[8] = s[13] = s[18] = s[23] = "-";
-    var uuid = s.join("");
+    s[8] = "4";
+    s[12] = hexDigits.substr((s[12] & 0x3) | 0x8, 1);
+    var uuid = s.join("").toString();
+    if(type == 'user') {
+        uuid ='user'+ uuid.slice(4)
+    } else if(type == 'post') {
+        uuid = 'post'+ uuid.slice(4)
+    } else if(type == 'art') {
+        uuid = 'art'+ uuid.slice(3)
+    } else if(type == 'question') {
+        uuid = 'ques'+ uuid.slice(4)
+    } else if(type == 'answer') {
+        uuid = 'answer'+ uuid.slice(5)
+    } else if(type == 'post_comment') {
+        uuid = 'pc'+ uuid.slice(2)
+    } else if(type == 'art_comment') {
+        uuid = 'ac'+ uuid.slice(2)
+    } else if(type == 'answer_comment') {
+        uuid = 'ac'+ uuid.slice(2)
+    } else if(type == 'image'||type == 'video') {
+        uuid = uuid + hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+    } else if(type == 'name') {
+        uuid = '用户'+ uuid.slice(6)
+    } else if(type == 'topic') {
+        uuid = 'topic'+ uuid.slice(5)
+    }
     return uuid;
-  }
-  
-  // 获取当前时间戳
-  export const getTime = () => {
-    // return (new Date()).Format("yyyy-MM-dd hh:mm:ss")
-    return (new Date()).getTime()
-  }
-export default {
-    newcode,
-    showformattime
 }
+  
+// 获取当前时间戳
+export const getTime = () => {
+// return (new Date()).Format("yyyy-MM-dd hh:mm:ss")
+return (new Date()).getTime()
+}
+
+export function deepCopy (obj) {
+    var newobj = obj.constructor === Array ? [] : {};
+    if(typeof obj !== 'object'){
+        return;
+    }
+    for(var i in obj){
+       newobj[i] = typeof obj[i] === 'object' ? deepCopy(obj[i]) : obj[i];
+    }
+    return newobj
+}
+
+
+// export default {
+//     newcode,
+//     showformattime
+// }

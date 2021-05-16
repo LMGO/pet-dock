@@ -2,7 +2,7 @@
   <div class="hottopic">
     <div class="title">
       <img class="hot-icon" src="../assets/icon/hot.png" alt="">
-      <span class="title-text">今日话题TOP</span>
+      <span class="title-text">话题TOP</span>
     </div>
     <div class="cover"></div>
     <div class="topic-list">
@@ -14,9 +14,9 @@
           </div>
           <div class="description">{{topic.topic_description}}</div>
           <div class="topic-data">
-            <div class="hot">热度：<span v-html="calculate(topic.browse)"></span></div>
+            <div class="hot">热度：<span v-html="calculate(topic.topic_hot)"></span></div>
             <div class="talk">讨论：<span v-html="calculate(topic.discuss_count)"></span></div>
-            <div class="topic_author">发起者：{{topic.author.user_nickname}}</div>
+            <div class="topic_author">发起者：{{topic.user_nickname}}</div>
           </div>
         </div>
         <img class="topic-cover" :src="topic.topic_cover" alt="话题封面" v-show="topic.topic_cover">
@@ -25,6 +25,7 @@
   </div>
 </template>
 <script>
+import { gethotlist } from "../utils/api/topic.js"
 export default {
   name: 'HotTopic',
   components: {
@@ -38,11 +39,9 @@ export default {
           topic_name:'给猫洗澡ddddddddddddddddddddddddddddddddddddddddddddddd',
           topic_description:'你是如何给猫洗澡的呢，一起来分享吧！你是如何给猫洗澡的呢，一起来分享吧！fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffHHHH哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffHHHH哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或',
           topic_cover:require('../assets/img/reg4.jpg'),
-          author :  {
-            user_id:'',
-            user_nickname:'半途',
-            user_avatar: require('../assets/img/reg4.jpg'),
-          },
+          user_id:'',
+          user_nickname:'半途',
+          user_avatar: require('../assets/img/reg4.jpg'),
           browse: 10000,
           discuss_count: 1000//引用次数累计
         },{
@@ -50,11 +49,9 @@ export default {
           topic_name:'给猫洗澡',
           topic_description:'你是如何给猫洗澡的呢，一起来分享吧！你是如何给猫洗澡的呢，一起来分享吧！fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffHHHH哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffHHHH哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或',
           topic_cover:require('../assets/img/reg4.jpg'),
-          author :  {
-            user_id:'',
-            user_nickname:'半途',
-            user_avatar: require('../assets/img/reg4.jpg'),
-          },
+          user_id:'',
+          user_nickname:'半途',
+          user_avatar: require('../assets/img/reg4.jpg'),
           browse: 10000,
           discuss_count: 1000//引用次数累计
         },{
@@ -62,11 +59,9 @@ export default {
           topic_name:'给猫洗澡',
           topic_description:'你是如何给猫洗澡的呢，一起来分享吧！你是如何给猫洗澡的呢，一起来分享吧！fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffHHHH哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffHHHH哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或',
           topic_cover:require('../assets/img/reg4.jpg'),
-          author :  {
-            user_id:'',
-            user_nickname:'半途',
-            user_avatar: require('../assets/img/reg4.jpg'),
-          },
+          user_id:'',
+          user_nickname:'半途',
+          user_avatar: require('../assets/img/reg4.jpg'),
           browse: 10000,
           discuss_count: 1000//引用次数累计
         },{
@@ -74,11 +69,9 @@ export default {
           topic_name:'给猫洗澡',
           topic_description:'你是如何给猫洗澡的呢，一起来分享吧！你是如何给猫洗澡的呢，一起来分享吧！fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffHHHH哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffHHHH哈哈哈哈哈哈哈哈哈哈或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或或',
           topic_cover:require('../assets/img/reg4.jpg'),
-          author :  {
-            user_id:'',
-            user_nickname:'半途',
-            user_avatar: require('../assets/img/reg4.jpg'),
-          },
+          user_id:'',
+          user_nickname:'半途',
+          user_avatar: require('../assets/img/reg4.jpg'),
           browse: 10000,
           discuss_count: 1000//引用次数累计
         }
@@ -101,6 +94,10 @@ export default {
         query: {topicid: i.topic_id}
       });
     }
+  },
+  async mounted(){
+    let res = await gethotlist()
+    this.topiclist = res.data.data
   }
 }
 </script>

@@ -11,25 +11,25 @@
       <div v-show="isactibveTab == 1">
         <div class="info-list username">
           <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 1}">
-            <input type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" v-model="loginform.user_name_phone" @keyup="loginform.user_name_phone = loginform.user_name_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
+            <input ref="phone_name" type="text" class="C_input" maxlength="12" autocomplete="off" placeholder="手机号/用户昵称" v-model="loginform.loginNameOrPhone" @keyup="loginform.loginNameOrPhone = loginform.loginNameOrPhone.replace(/\s+/g,'')" @focus="input_wrap_focus = 1" @blur="input_wrap_focus = 0">
           </div>
         </div>
         <div class="info-list password">
           <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 2}">
-            <input type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" v-model="loginform.user_password" @keyup="loginform.user_name_password = loginform.user_password.replace(/\s+/g,'')" @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
+            <input ref="password" type="password" class="C_input" maxlength="15" autocomplete="off" placeholder="请输入密码" v-model="loginform.user_password" @keyup="loginform.user_name_password = loginform.user_password.replace(/\s+/g,'')" @focus="input_wrap_focus = 2" @blur="input_wrap_focus = 0">
           </div>
         </div>
       </div>
       <div v-show="isactibveTab == 2">
         <div class="info-list userphone">
           <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 3}">
-            <input type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" v-model="loginform.user_phone" @keyup="loginform.user_phone = loginform.user_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0">
+            <input ref="phone" type="text" class="C_input" maxlength="11" autocomplete="off" placeholder="手机号,仅支持大陆手机号" v-model="loginform.user_phone" @keyup="loginform.user_phone = loginform.user_phone.replace(/\s+/g,'')" @focus="input_wrap_focus = 3" @blur="input_wrap_focus = 0">
           </div>
         </div>
         <div class="info-list Verification-Code">
           <div class="get-code" @click="getCode">获取短信验证码<span class="time" v-if="showtime" @click.stop="">倒计时 {{restTime}} s</span></div>
           <div class="input_wrap" :class="{input_wrap_focus: input_wrap_focus == 4}">
-            <input type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" v-model="loginform.user_code" @keyup="loginform.user_code = loginform.user_code.replace(/\s+/g,'')" @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
+            <input ref="code" type="text" class="C_input" maxlength="6" autocomplete="off" placeholder="短信验证码" v-model="loginform.user_code" @keyup="loginform.user_code = loginform.user_code.replace(/\s+/g,'')" @focus="input_wrap_focus = 4" @blur="input_wrap_focus = 0">
           </div>
         </div>
       </div>
@@ -44,14 +44,14 @@
 </template>
 <script>
 import { newcode } from '@/utils/index.js'
-
+import {signin } from '@/utils/api/user.js'
 export default {
   data() {
     return {
       isactibveTab: 1, //控制登录方式Tab
       input_wrap_focus: 0, //控制账号和密码聚焦样式
       loginform: {
-        user_name_phone: '',//用户名或者手机号
+        loginNameOrPhone: '',//用户名或者手机号
         user_password: '',
         user_phone: '',
         user_code: ''
@@ -83,9 +83,16 @@ export default {
     getCode() {
       let self = this;
       if (!self.loginform.user_phone || !(/^1[34578]\d{9}$/.test(self.loginform.user_phone))){
-        self.input_wrap_focus = 3;
+        // self.input_wrap_focus = 3;
         //提示 手机号格式错误或为空
-        console.log("手机号为空或格式错误");
+        self.$message({
+          message: "手机号为空或格式错误",
+          duration: 2000,
+          type: "warning"
+        });
+        self.$nextTick(() => {
+          this.$refs.phone.focus();
+        });
       } else {
         self.input_wrap_focus = 0;
         //获取验证码
@@ -106,7 +113,7 @@ export default {
         //获取验证码
         let code = newcode()
         let params ={
-          phone: '18487315405',
+          phone: this.loginform.user_phone,
           templateId: '540',
           variables: code
         }
@@ -132,26 +139,128 @@ export default {
       let self = this;
       //账号密码登录
       if(self.isactibveTab == 1) {
-        if(!self.loginform.user_name_phone){
-          self.input_wrap_focus = 1;
-          console.log("请填写手机号或用户昵称");
+        if(!self.loginform.loginNameOrPhone){
+          self.$message({
+            message: "请填写手机号或用户昵称",
+            duration: 2000,
+            type: "warning"
+          });
+          self.$nextTick(() => {
+            this.$refs.phone_name.focus();
+          });
+          return
         } else if(!self.loginform.user_password){
-          self.input_wrap_focus = 2;
-          console.log("请输入密码");
+          self.$message({
+            message: "请输入密码",
+            duration: 2000,
+            type: "warning"
+          });
+          self.$nextTick(() => {
+            this.$refs.password.focus();
+          });
+          return
         }
+        let params = {
+          loginNameOrPhone:this.loginform.loginNameOrPhone,
+          user_password:this.loginform.user_password,
+          type: 'password'
+        }
+        //登录
+        signin(params).then(res=>{
+          if(res.data.code == 1 && res.data.msg == '用户名/手机号或密码错误') {
+            self.$message({
+              message: "用户名/手机号或密码错误",
+              duration: 2000,
+              type: "warning"
+            });
+          } else if(res.data.code == 1) {
+            self.$message({
+              message: "系统异常",
+              duration: 2000,
+              type: "warning"
+            });
+          } else {
+            self.$message({
+              message: "登录成功！",
+              duration: 2000,
+              type: "success"
+            });
+            //存数据
+            //存数据
+            localStorage.setItem('userInfo', JSON.stringify(res.data.data))
+            //用户信息存入vuex
+            this.$store.dispatch('getUserInfo', res.data.data)
+            self.closePopup()
+          }
+        })
       } else {
+        //手机号验证码登录
         if(!self.loginform.user_phone || !(/^1[34578]\d{9}$/.test(self.loginform.user_phone))){
-          self.input_wrap_focus = 3;
-          console.log("请正确填写手机号");
+          // self.input_wrap_focus = 3;
+          // console.log("");
+          self.$message({
+            message: "请正确填写手机号",
+            duration: 2000,
+            type: "warning"
+          });
+          self.$nextTick(() => {
+            this.$refs.phone.focus();
+          });
+          return
         } else if(!self.loginform.user_code){
-          self.input_wrap_focus = 4;
-          console.log("请输入验证码");
+          // self.input_wrap_focus = 4;
+          self.$message({
+            message: "请输入验证码",
+            duration: 2000,
+            type: "warning"
+          });
+          self.$nextTick(() => {
+            this.$refs.code.focus();
+          });
+          return
         } else if(self.loginform.user_code.length != 6){
-          self.input_wrap_focus = 4;
-          console.log("验证码错误");
-        } else {
-          //
+          // self.input_wrap_focus = 4;
+          self.$message({
+            message: "验证码错误",
+            duration: 2000,
+            type: "warning"
+          });
+          self.$nextTick(() => {
+            this.$refs.code.focus();
+          });
+          return
+        } 
+        //验证码登录
+        let params = {
+          user_phone:this.loginform.user_phone,
+          type:'code'
         }
+        signin(params).then(res=>{
+          if(res.data.code == 1 && res.data.msg == '用户名/手机号或密码错误') {
+            self.$message({
+              message: "手机号未注册",
+              duration: 2000,
+              type: "warning"
+            });
+          } else if(res.data.code == 1) {
+            self.$message({
+              message: "系统异常",
+              duration: 2000,
+              type: "warning"
+            });
+          } else {
+            self.$message({
+              message: "登录成功！",
+              duration: 2000,
+              type: "success"
+            });
+            //存数据
+            localStorage.setItem('userInfo', JSON.stringify(res.data.data))
+            //用户信息存入vuex
+            this.$store.dispatch('getUserInfo', res.data.data)
+            self.closePopup()
+          }
+        })
       }
     }
   },
