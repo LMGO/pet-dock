@@ -20,7 +20,7 @@ export const signin = data => {
 }
 
 //关注用户
-export const folowuser = data => {
+export const followuser = data => {
   return axios({
     url: serverUrl + '/users/followuser',
     method: 'post',
@@ -29,7 +29,7 @@ export const folowuser = data => {
 }
 
 //取消关注
-export const unfolowuser = data => {
+export const unfollowuser = data => {
   return axios({
     url: serverUrl + '/users/unfollowuser',
     method: 'delete',

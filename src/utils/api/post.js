@@ -53,7 +53,7 @@ export const gethotvideolist = params => {
   })
 }
 // 关注的帖子
-export const getfollowlist = params => {
+export const getfollowpostlist = params => {
   return axios({
     url: serverUrl + '/posts/getfollowlist',
     method: 'get',
@@ -69,7 +69,7 @@ export const getfollowvideolist = params => {
   })
 }
 // 最新帖子
-export const getnewlist = params => {
+export const getnewpostlist = params => {
   return axios({
     url: serverUrl + '/posts/getnewlist',
     method: 'get',

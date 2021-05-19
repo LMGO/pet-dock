@@ -412,7 +412,7 @@
 // @ is an alias to /src
 import { showformattime,getTime } from "../utils/index.js";
 import LoginUserinfo from "@/components/LoginUserinfo.vue";
-import NoData from "../components/NoData";
+import NoData from "@/components/NoData";
 import PostPopup from "@/components/PostPopup.vue";
 import {getnewqustionlist,getfollowquestionlist,gethotquestionlist, followquestion,unfollowquestion} from "../utils/api/question.js";
 export default {

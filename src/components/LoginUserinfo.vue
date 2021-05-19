@@ -371,7 +371,7 @@ export default {
         PostPopup.post = "topic";
         this.$store.commit("changepostpopup", PostPopup);
       } else {
-        //
+        this.$router.push({ name: 'ArticlePost'});
       }
     },
     //获取粉丝和关注数量

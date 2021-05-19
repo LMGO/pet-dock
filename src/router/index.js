@@ -76,9 +76,17 @@ const routes = [
     name: 'Question',
     component: () => import('../views/Question.vue')
   }, {
+    path: '/artdetail/:art_id',
+    name: 'ArtDetail',
+    component: () => import('../views/ArtDetail.vue'),
+  }, {
     path: '/user/:user_id/:type?',
     name: 'User',
     component: () => import('../views/User.vue'),
+  },{
+    path: '/articlepost',
+    name: 'ArticlePost',
+    component: () => import('../views/ArtPost.vue')
   },
   {
     path: '*',
