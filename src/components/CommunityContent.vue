@@ -702,7 +702,8 @@ export default {
         if (this.contentType == "myFollows") {
           let res = await getfollowartlist(params);
           if (res.data.code == 0) {
-            this.postlist = res.data.data;
+            this.artlist = res.data.data;
+            console.log(this.postlist)
           } else {
             this.$message({
               message: "抱歉，系统异常！",

@@ -85,7 +85,8 @@ export default {
       },
       showtime: false,//控制倒计时
       restTime: '',
-      timer:null
+      timer:null,
+      mycode:0
     };
   },
   methods:{
@@ -112,21 +113,27 @@ export default {
           variables: code
         }
         console.log(data)
-        // self.axios.post('http://aliapi.market.alicloudapi.com/smsApi/verifyCode/send', 
-        // self.$qs.stringify(
-        //   data
-        // ),
-        // {
-        //   headers: {
-        //     'Authorization': 'APPCODE' +" "+'fd36e8a662b2495b93b1455020370263',
-        //   }
-        // })
-        // .then(function (response) {
-        //   console.log(response);
-        // })
-        // .catch(function (error) {
-        //   console.log(error);
-        // });
+        self.axios.post('http://aliapi.market.alicloudapi.com/smsApi/verifyCode/send', 
+        self.$qs.stringify(
+          data
+        ),
+        {
+          headers: {
+            'Authorization': 'APPCODE' +" "+'fd36e8a662b2495b93b1455020370263',
+          }
+        })
+        .then(function (response) {
+          self.mycode = code
+          console.log(response);
+          self.$message({
+            message: "验证码已发送",
+            duration: 2000,
+            type: "success"
+          });
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
         const TIME_COUNT = 60;
         if (!self.timer) {
           self.restTime = TIME_COUNT;
@@ -198,10 +205,11 @@ export default {
         });
         self.regform.passwordagain = ''
         return
-      } else if (self.regform.code.length!==6) {
+      } else if (self.regform.code.length!==6 ||self.regform.code != self.mycode) {
         //提示 密码长度小于5
         // self.input_wrap_focus = 4
         // console.log("验证码错误");
+        
         self.regform.code = ''
         self.$message({
           message: "验证码错误",
